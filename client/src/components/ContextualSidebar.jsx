@@ -69,10 +69,6 @@ export function ContextualSidebar({
         {/* 1. Repository Scanner Category */}
         {activeTab === 'scanner' && (
           <div className="sidebar-section">
-            <div className="sidebar-section-header">
-              <span className="section-title">Scan Local Repository</span>
-            </div>
-
             <form className="sidebar-scan-form" onSubmit={handleSubmitScan}>
               <div className="form-group">
                 <label htmlFor="sidebar-repo-input" className="form-label">
@@ -151,11 +147,6 @@ export function ContextualSidebar({
         {/* 2. Repository Files Category */}
         {activeTab === 'files' && (
           <div className="sidebar-section">
-            <div className="sidebar-section-header">
-              <span className="section-title">Indexed Source Files</span>
-              {summary && <span className="section-count">{summary.totalNodes}</span>}
-            </div>
-
             {graphData?.nodes && graphData.nodes.length > 0 ? (
               <div className="sidebar-file-tree-wrapper">
                 <FileTree
@@ -178,11 +169,6 @@ export function ContextualSidebar({
         {/* 3. Internal Dependencies Category */}
         {activeTab === 'internal' && (
           <div className="sidebar-section">
-            <div className="sidebar-section-header">
-              <span className="section-title">Resolved Internal Edges</span>
-              {summary && <span className="section-count">{summary.totalEdges}</span>}
-            </div>
-
             {graphData ? (
               <div className="sidebar-deps-wrapper">
                 <InternalDepsList
@@ -203,11 +189,6 @@ export function ContextualSidebar({
         {/* 4. External Dependencies Category */}
         {activeTab === 'external' && (
           <div className="sidebar-section">
-            <div className="sidebar-section-header">
-              <span className="section-title">External Packages</span>
-              {summary && <span className="section-count">{summary.externalCount}</span>}
-            </div>
-
             {graphData ? (
               <div className="sidebar-deps-wrapper">
                 <ExternalDepsList
@@ -228,11 +209,6 @@ export function ContextualSidebar({
         {/* 5. Unresolved Dependencies Category */}
         {activeTab === 'unresolved' && (
           <div className="sidebar-section">
-            <div className="sidebar-section-header">
-              <span className="section-title">Unresolved Imports</span>
-              {summary && <span className="section-count">{summary.unresolvedCount}</span>}
-            </div>
-
             {graphData ? (
               <div className="sidebar-deps-wrapper">
                 <UnresolvedDepsList

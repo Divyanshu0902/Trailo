@@ -144,6 +144,16 @@ describe('Activity Bar Dependency Inspectors (Internal, External, Unresolved)', 
       assert.doesNotMatch(content, /External Package Inspector/);
       assert.doesNotMatch(content, /Import Diagnostics/);
     });
+
+    it('strictly avoids duplicate sub-headings, retaining only the authoritative top capital title', () => {
+      const content = fs.readFileSync(sidebarComponentPath, 'utf8');
+
+      assert.match(content, /className="sidebar-header-title"/);
+      assert.doesNotMatch(content, /sidebar-section-header/);
+      assert.doesNotMatch(content, /Scan Local Repository/);
+      assert.doesNotMatch(content, /Indexed Source Files/);
+      assert.doesNotMatch(content, /Resolved Internal Edges/);
+    });
   });
 
   describe('5. CSS Styling and Scrollbar Suppression', () => {

@@ -90,12 +90,13 @@ export function ExternalDepIcon({ size = 20, strokeWidth = 1.75, className = '',
       aria-hidden="true"
       {...props}
     >
-      <path d="m16.5 9.4-9-5.19M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
-      <polyline points="3.29 7 12 12 20.71 7" />
-      <line x1="12" y1="22" x2="12" y2="12" />
+      <circle cx="12" cy="12" r="10" />
+      <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
+      <path d="M2 12h20" />
     </svg>
   );
 }
+
 
 export function UnresolvedDepIcon({ size = 20, strokeWidth = 1.75, className = '', ...props }) {
   return (
@@ -134,12 +135,15 @@ export function GraphIcon({ size = 16, strokeWidth = 1.75, className = '', ...pr
       aria-hidden="true"
       {...props}
     >
-      <circle cx="6" cy="6" r="3" />
-      <circle cx="18" cy="6" r="3" />
-      <circle cx="12" cy="18" r="3" />
-      <line x1="8.5" y1="7.5" x2="10.5" y2="15.5" />
-      <line x1="15.5" y1="7.5" x2="13.5" y2="15.5" />
-      <line x1="9" y1="6" x2="15" y2="6" />
+      {/* Root node */}
+      <circle cx="12" cy="5" r="2" />
+      {/* Child nodes */}
+      <circle cx="5" cy="18" r="2" />
+      <circle cx="12" cy="18" r="2" />
+      <circle cx="19" cy="18" r="2" />
+      {/* Tree branching paths */}
+      <path d="M5 16v-2.5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2V16" />
+      <line x1="12" y1="7" x2="12" y2="16" />
     </svg>
   );
 }
@@ -446,12 +450,28 @@ export function ClusterIcon({ size = 20, strokeWidth = 1.75, className = '', ...
       aria-hidden="true"
       {...props}
     >
-      <path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z" />
-      <path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65" />
-      <path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65" />
+      {/* Cluster 1: Top-left node group */}
+      <circle cx="6" cy="6" r="2" />
+      <circle cx="12" cy="6" r="2" />
+      <circle cx="8" cy="12" r="2" />
+      <line x1="8" y1="6" x2="10" y2="6" />
+      <line x1="6.8" y1="8" x2="7.4" y2="10" />
+      <line x1="11" y1="8" x2="9" y2="10.5" />
+
+      {/* Cluster 2: Bottom-right node group */}
+      <circle cx="16" cy="12" r="2" />
+      <circle cx="12" cy="18" r="2" />
+      <circle cx="18" cy="18" r="2" />
+      <line x1="14" y1="18" x2="16" y2="18" />
+      <line x1="14.8" y1="13.8" x2="13.2" y2="16.2" />
+      <line x1="16.6" y1="13.8" x2="17.4" y2="16.2" />
+
+      {/* Inter-cluster bridge */}
+      <line x1="9.5" y1="13.5" x2="10.5" y2="16.5" strokeDasharray="1.5 1.5" />
     </svg>
   );
 }
+
 
 export function AskTrailoIcon({ size = 20, strokeWidth = 1.75, className = '', ...props }) {
   return (
