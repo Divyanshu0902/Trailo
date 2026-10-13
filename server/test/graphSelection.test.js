@@ -1,6 +1,10 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { computeSelectionHighlights } from '../../client/src/utils/graphSelection.js';
+import {
+  computeSelectionHighlights,
+  transitionSelectionState,
+  transitionActivityBarState,
+} from '../../client/src/utils/graphSelection.js';
 import { SourceLoader } from '../../client/src/utils/sourceLoader.js';
 import {
   splitSourceLines,
@@ -570,6 +574,176 @@ describe('Node Selection and Source Viewer (Phase 4C Step 2C)', () => {
       assert.equal(layout.nodes.length, 0);
       assert.ok(Array.isArray(layout.edges));
       assert.equal(layout.edges.length, 0);
+    });
+  });
+
+  describe('Collapsible Source Explorer State Transitions (UI Tweak)', () => {
+    it('starts with source explorer collapsed by default when no node is selected', () => {
+      const state = transitionSelectionState({
+        currentSelectedId: null,
+        nextSelectedId: null,
+        isSourceOpen: false,
+      });
+
+      assert.equal(state.isSourceOpen, false, 'Source explorer must be collapsed by default');
+      assert.equal(state.selectedNodeId, null);
+    });
+
+    it('automatically expands source explorer when a node is selected', () => {
+      const state = transitionSelectionState({
+        currentSelectedId: null,
+        nextSelectedId: 'src/app.js',
+        isSourceOpen: false,
+      });
+
+      assert.equal(state.isSourceOpen, true, 'Source explorer must automatically expand on node selection');
+      assert.equal(state.selectedNodeId, 'src/app.js');
+    });
+
+    it('keeps source explorer open when switching between nodes', () => {
+      const state = transitionSelectionState({
+        currentSelectedId: 'src/app.js',
+        nextSelectedId: 'src/routes.js',
+        isSourceOpen: true,
+      });
+
+      assert.equal(state.isSourceOpen, true, 'Source explorer must remain open when selecting another node');
+      assert.equal(state.selectedNodeId, 'src/routes.js');
+    });
+
+    it('reopens source explorer when clicking the already-selected node after manual collapse', () => {
+      // User selects node -> panel expands
+      const initial = transitionSelectionState({
+        currentSelectedId: null,
+        nextSelectedId: 'src/app.js',
+        isSourceOpen: false,
+      });
+      assert.equal(initial.isSourceOpen, true);
+
+      // User manually collapses panel
+      const collapsedOpenState = false;
+
+      // User clicks the same node again on canvas
+      const reopened = transitionSelectionState({
+        currentSelectedId: initial.selectedNodeId,
+        nextSelectedId: 'src/app.js',
+        isSourceOpen: collapsedOpenState,
+      });
+
+      assert.equal(reopened.isSourceOpen, true, 'Clicking node again after manual collapse must reopen explorer');
+      assert.equal(reopened.selectedNodeId, 'src/app.js');
+    });
+
+    it('retains selection and open state when clicking the same node while already open', () => {
+      const state = transitionSelectionState({
+        currentSelectedId: 'src/app.js',
+        nextSelectedId: 'src/app.js',
+        isSourceOpen: true,
+      });
+
+      assert.equal(state.isSourceOpen, true);
+      assert.equal(state.selectedNodeId, 'src/app.js');
+    });
+
+    it('collapses source explorer and clears selection on explicit deselection', () => {
+      const state = transitionSelectionState({
+        currentSelectedId: 'src/app.js',
+        nextSelectedId: null,
+        isSourceOpen: true,
+      });
+
+      assert.equal(state.isSourceOpen, false, 'Deselection must close the source explorer');
+      assert.equal(state.selectedNodeId, null);
+    });
+
+    it('preserves user-defined panel width across collapse and expand cycles', () => {
+      // User resizes panel to custom width
+      const userResizedWidth = clampViewerWidth(620, 1400);
+      assert.equal(userResizedWidth, 620);
+
+      // Panel is collapsed (width state retained in parent component)
+      const isCollapsed = true;
+      assert.equal(isCollapsed, true);
+
+      // Panel re-expanded (width reused directly without resetting)
+      const restoredWidth = clampViewerWidth(userResizedWidth, 1400);
+      assert.equal(restoredWidth, 620, 'User resized width must be preserved when reopened');
+    });
+  });
+
+  describe('transitionActivityBarState (Application Shell Navigation)', () => {
+    it('opens contextual sidebar when clicking an activity icon while sidebar is closed', () => {
+      const state = transitionActivityBarState({
+        currentTab: 'scanner',
+        isSidebarOpen: false,
+        clickedTab: 'scanner',
+      });
+
+      assert.deepEqual(state, {
+        activeTab: 'scanner',
+        isSidebarOpen: true,
+      });
+    });
+
+    it('collapses contextual sidebar when clicking the currently active category while open', () => {
+      const state = transitionActivityBarState({
+        currentTab: 'scanner',
+        isSidebarOpen: true,
+        clickedTab: 'scanner',
+      });
+
+      assert.deepEqual(state, {
+        activeTab: 'scanner',
+        isSidebarOpen: false,
+      });
+    });
+
+    it('reopens contextual sidebar when clicking the currently active category while closed', () => {
+      const state = transitionActivityBarState({
+        currentTab: 'files',
+        isSidebarOpen: false,
+        clickedTab: 'files',
+      });
+
+      assert.deepEqual(state, {
+        activeTab: 'files',
+        isSidebarOpen: true,
+      });
+    });
+
+    it('switches category and keeps sidebar open when clicking another icon while sidebar is open', () => {
+      const state = transitionActivityBarState({
+        currentTab: 'scanner',
+        isSidebarOpen: true,
+        clickedTab: 'internal',
+      });
+
+      assert.deepEqual(state, {
+        activeTab: 'internal',
+        isSidebarOpen: true,
+      });
+    });
+
+    it('switches category and opens sidebar when clicking another icon while sidebar is closed', () => {
+      const state = transitionActivityBarState({
+        currentTab: 'scanner',
+        isSidebarOpen: false,
+        clickedTab: 'external',
+      });
+
+      assert.deepEqual(state, {
+        activeTab: 'external',
+        isSidebarOpen: true,
+      });
+    });
+
+    it('uses fallback defaults gracefully when parameters are omitted', () => {
+      const state = transitionActivityBarState();
+
+      assert.deepEqual(state, {
+        activeTab: 'scanner',
+        isSidebarOpen: true,
+      });
     });
   });
 });

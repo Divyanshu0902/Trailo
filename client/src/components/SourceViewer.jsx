@@ -49,6 +49,7 @@ export function SourceViewer({
   sourceState,
   onRetry,
   onClose,
+  onCollapse,
   incomingCount = 0,
   outgoingCount = 0,
   width,
@@ -63,6 +64,31 @@ export function SourceViewer({
         style={panelStyle}
         aria-label="Source Viewer"
       >
+        <div className="viewer-header viewer-header-empty">
+          <div className="viewer-title-row">
+            <span className="viewer-empty-header-title">Source Explorer</span>
+          </div>
+          <div className="viewer-header-actions">
+            <button
+              type="button"
+              className="btn-icon-collapse"
+              onClick={onCollapse || onClose}
+              title="Collapse source explorer"
+              aria-label="Collapse source explorer"
+            >
+              ›
+            </button>
+            <button
+              type="button"
+              className="btn-icon-close"
+              onClick={onClose}
+              title="Close source explorer"
+              aria-label="Close source viewer"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
         <div className="viewer-empty-content">
           <div className="viewer-empty-icon" role="img" aria-label="code">📄</div>
           <h3 className="viewer-empty-title">No File Selected</h3>
@@ -119,15 +145,26 @@ export function SourceViewer({
           </div>
         </div>
 
-        <button
-          type="button"
-          className="btn-icon-close"
-          onClick={onClose}
-          title="Deselect node and close viewer"
-          aria-label="Close source viewer"
-        >
-          ✕
-        </button>
+        <div className="viewer-header-actions">
+          <button
+            type="button"
+            className="btn-icon-collapse"
+            onClick={onCollapse || onClose}
+            title="Collapse source explorer"
+            aria-label="Collapse source explorer"
+          >
+            ›
+          </button>
+          <button
+            type="button"
+            className="btn-icon-close"
+            onClick={onClose}
+            title="Deselect node and close viewer"
+            aria-label="Close source viewer"
+          >
+            ✕
+          </button>
+        </div>
       </div>
 
       {/* Viewer Content Area */}

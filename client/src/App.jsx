@@ -1,10 +1,18 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useNodesState, useEdgesState, MarkerType } from '@xyflow/react';
-import { ExploreHeader } from './components/ExploreHeader.jsx';
+import { AppTitleBar } from './components/AppTitleBar.jsx';
+import { ActivityBar } from './components/ActivityBar.jsx';
+import { ContextualSidebar } from './components/ContextualSidebar.jsx';
+import { WorkspaceTabBar } from './components/WorkspaceTabBar.jsx';
+import { AppStatusBar } from './components/AppStatusBar.jsx';
 import { GraphCanvas } from './components/GraphCanvas.jsx';
 import { SourceViewer } from './components/SourceViewer.jsx';
 import { computeGraphLayout } from './utils/layout.js';
-import { computeSelectionHighlights } from './utils/graphSelection.js';
+import {
+  computeSelectionHighlights,
+  transitionSelectionState,
+  transitionActivityBarState,
+} from './utils/graphSelection.js';
 import { defaultSourceLoader } from './utils/sourceLoader.js';
 import { clampViewerWidth } from './utils/sourceHighlighter.js';
 import './App.css';
@@ -15,8 +23,13 @@ export default function App() {
   const [isScanning, setIsScanning] = useState(false);
   const [error, setError] = useState(null);
 
-  // Selection & Source state
+  // Application shell navigation state
+  const [activeSidebarTab, setActiveSidebarTab] = useState('scanner');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+  // Selection & Source explorer state
   const [selectedNodeId, setSelectedNodeId] = useState(null);
+  const [isSourceOpen, setIsSourceOpen] = useState(false);
   const [sourceRetryCount, setSourceRetryCount] = useState(0);
   const [sourceState, setSourceState] = useState({
     isLoading: false,
@@ -119,6 +132,7 @@ export default function App() {
   const loadGraphFromPayload = useCallback((payload) => {
     setGraphData(payload);
     setSelectedNodeId(null);
+    setIsSourceOpen(false);
     setSourceState({ isLoading: false, error: null, data: null });
     defaultSourceLoader.clearCache();
 
@@ -234,23 +248,53 @@ export default function App() {
 
   /**
    * Handles node selection from the canvas.
-   * Sticky selection: Clicking the already-selected node retains selection.
-   * Deselection only happens when explicitly passed null (e.g. clicking canvas background or close button).
+   * - Clicking any file node automatically expands the source explorer.
+   * - Clicking the already-selected node when collapsed reopens the explorer.
+   * - Clicking another node updates the explorer without closing it.
+   * - Deselection (e.g. clicking canvas background) clears selection and closes explorer.
    */
-  const handleSelectNode = useCallback((nodeId) => {
-    if (!nodeId) {
-      setSelectedNodeId(null);
-      applyHighlights(null, nodes, edges);
-      return;
-    }
+  const handleSelectNode = useCallback(
+    (nodeId) => {
+      const next = transitionSelectionState({
+        currentSelectedId: selectedNodeId,
+        nextSelectedId: nodeId,
+        isSourceOpen,
+      });
 
-    if (nodeId === selectedNodeId) {
-      return;
-    }
+      if (next.selectedNodeId === selectedNodeId && next.isSourceOpen === isSourceOpen) {
+        return;
+      }
 
-    setSelectedNodeId(nodeId);
-    applyHighlights(nodeId, nodes, edges);
-  }, [selectedNodeId, nodes, edges, applyHighlights]);
+      setSelectedNodeId(next.selectedNodeId);
+      setIsSourceOpen(next.isSourceOpen);
+      applyHighlights(next.selectedNodeId, nodes, edges);
+    },
+    [selectedNodeId, isSourceOpen, nodes, edges, applyHighlights]
+  );
+
+  /**
+   * Manually collapses the source explorer panel, restoring full canvas width.
+   * Retains node selection highlight so the user can easily re-expand.
+   */
+  const handleCollapseSource = useCallback(() => {
+    setIsSourceOpen(false);
+  }, []);
+
+  /**
+   * Manually expands the source explorer panel.
+   */
+  const handleExpandSource = useCallback(() => {
+    setIsSourceOpen(true);
+  }, []);
+
+  /**
+   * Closes the source explorer and clears selection.
+   */
+  const handleCloseSource = useCallback(() => {
+    setIsSourceOpen(false);
+    setSelectedNodeId(null);
+    applyHighlights(null, nodes, edges);
+  }, [nodes, edges, applyHighlights]);
 
   /**
    * Retry loading source for currently selected node.
@@ -359,6 +403,7 @@ export default function App() {
       setNodes([]);
       setEdges([]);
       setSelectedNodeId(null);
+      setIsSourceOpen(false);
       setSourceState({ isLoading: false, error: null, data: null });
       setError({
         code: err.code || 'SCAN_ERROR',
@@ -368,6 +413,42 @@ export default function App() {
       setIsScanning(false);
     }
   };
+
+  // Extract repository name from path
+  const repoName = useMemo(() => {
+    if (!graphData?.rootPath) return null;
+    const clean = graphData.rootPath.replace(/[/\\]+$/, '');
+    const parts = clean.split(/[/\\]/);
+    return parts[parts.length - 1] || clean;
+  }, [graphData?.rootPath]);
+
+  // Activity bar tab selection & sidebar toggling
+  const handleSelectActivityTab = useCallback(
+    (tabId) => {
+      const next = transitionActivityBarState({
+        currentTab: activeSidebarTab,
+        isSidebarOpen,
+        clickedTab: tabId,
+      });
+      setActiveSidebarTab(next.activeTab);
+      setIsSidebarOpen(next.isSidebarOpen);
+    },
+    [activeSidebarTab, isSidebarOpen]
+  );
+
+  // Keyboard shortcut Ctrl+B (or Cmd+B) to toggle sidebar
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'b' || e.key === 'B')) {
+        if (!['INPUT', 'TEXTAREA'].includes(e.target?.tagName)) {
+          e.preventDefault();
+          setIsSidebarOpen((open) => !open);
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // Find currently selected node object and incident edge counts
   const selectedNode = useMemo(() => {
@@ -390,67 +471,114 @@ export default function App() {
 
   return (
     <div className="trailo-explore-app">
-      <ExploreHeader
-        repoPath={repoPath}
-        setRepoPath={setRepoPath}
-        onScan={handleScan}
-        isScanning={isScanning}
-        graphData={graphData}
+      {/* Top Application Bar with Logo, Repo Context, and Layout Toggles */}
+      <AppTitleBar
+        repoName={repoName}
+        repoPath={graphData?.rootPath || repoPath}
+        isSidebarOpen={isSidebarOpen}
+        onToggleSidebar={() => setIsSidebarOpen((open) => !open)}
+        isSourceOpen={isSourceOpen}
+        onToggleSource={() => setIsSourceOpen((open) => !open)}
       />
 
-      <main
-        ref={workspaceRef}
-        className={`explore-workspace ${isDragging ? 'workspace-resizing' : ''}`}
-      >
-        <div className="workspace-center-canvas">
-          <GraphCanvas
-            nodes={nodes}
-            edges={edges}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            graphData={graphData}
+      {/* Middle Container: Activity Bar + Contextual Sidebar + Main Workspace */}
+      <div className="shell-middle-container">
+        <ActivityBar
+          activeTab={activeSidebarTab}
+          isSidebarOpen={isSidebarOpen}
+          onSelectTab={handleSelectActivityTab}
+          summary={graphData?.summary}
+        />
+
+        {isSidebarOpen && (
+          <ContextualSidebar
+            activeTab={activeSidebarTab}
+            onCollapse={() => setIsSidebarOpen(false)}
+            repoPath={repoPath}
+            setRepoPath={setRepoPath}
+            onScan={handleScan}
             isScanning={isScanning}
+            graphData={graphData}
             error={error}
-            onDismissError={() => setError(null)}
-            onNodeClick={handleSelectNode}
-            onPaneClick={() => handleSelectNode(null)}
           />
-        </div>
-
-        {graphData && graphData.nodes && graphData.nodes.length > 0 && (
-          <>
-            <div
-              className={`workspace-splitter ${isDragging ? 'is-dragging' : ''}`}
-              role="separator"
-              aria-orientation="vertical"
-              aria-valuenow={viewerWidth}
-              aria-valuemin={320}
-              aria-valuemax={850}
-              aria-label="Resize source viewer panel"
-              tabIndex={0}
-              onMouseDown={handleSplitterMouseDown}
-              onKeyDown={handleSplitterKeyDown}
-            />
-            <SourceViewer
-              selectedNode={selectedNode}
-              sourceState={sourceState}
-              onRetry={handleRetrySource}
-              onClose={() => handleSelectNode(null)}
-              incomingCount={incomingCount}
-              outgoingCount={outgoingCount}
-              width={viewerWidth}
-            />
-          </>
         )}
-      </main>
 
-      <footer className="explore-footer">
-        <span className="footer-brand">Trailo</span>
-        <span className="footer-sep">•</span>
-        <span className="footer-tagline">Local-first repository explorer</span>
-        <span className="footer-sep">•</span>
-        <span className="footer-evidence">Verified AST dependency graphs</span>
-      </footer>
+        <div className="shell-main-workspace">
+          <WorkspaceTabBar
+            selectedNode={selectedNode}
+            repoName={repoName}
+            isSourceOpen={isSourceOpen}
+            onToggleSource={() => setIsSourceOpen((open) => !open)}
+          />
+
+          <main
+            ref={workspaceRef}
+            className={`explore-workspace ${isDragging ? 'workspace-resizing' : ''}`}
+          >
+            <div className="workspace-center-canvas">
+              <GraphCanvas
+                nodes={nodes}
+                edges={edges}
+                onNodesChange={onNodesChange}
+                onEdgesChange={onEdgesChange}
+                graphData={graphData}
+                isScanning={isScanning}
+                error={error}
+                onDismissError={() => setError(null)}
+                onNodeClick={handleSelectNode}
+                onPaneClick={() => handleSelectNode(null)}
+              />
+            </div>
+
+            {graphData && graphData.nodes && graphData.nodes.length > 0 && isSourceOpen && (
+              <>
+                <div
+                  className={`workspace-splitter ${isDragging ? 'is-dragging' : ''}`}
+                  role="separator"
+                  aria-orientation="vertical"
+                  aria-valuenow={viewerWidth}
+                  aria-valuemin={320}
+                  aria-valuemax={850}
+                  aria-label="Resize source viewer panel"
+                  tabIndex={0}
+                  onMouseDown={handleSplitterMouseDown}
+                  onKeyDown={handleSplitterKeyDown}
+                />
+                <SourceViewer
+                  selectedNode={selectedNode}
+                  sourceState={sourceState}
+                  onRetry={handleRetrySource}
+                  onClose={handleCloseSource}
+                  onCollapse={handleCollapseSource}
+                  incomingCount={incomingCount}
+                  outgoingCount={outgoingCount}
+                  width={viewerWidth}
+                />
+              </>
+            )}
+
+            {graphData && graphData.nodes && graphData.nodes.length > 0 && !isSourceOpen && (
+              <button
+                type="button"
+                className="btn-expand-explorer"
+                onClick={handleExpandSource}
+                title={selectedNode ? `Expand source explorer (${selectedNode.data.name})` : 'Expand source explorer'}
+                aria-label="Expand source explorer"
+              >
+                <span className="expand-icon" aria-hidden="true">‹</span>
+                <span className="expand-label">Source</span>
+              </button>
+            )}
+          </main>
+        </div>
+      </div>
+
+      {/* Bottom Status Bar */}
+      <AppStatusBar
+        repoName={repoName}
+        summary={graphData?.summary}
+        selectedNode={selectedNode}
+      />
     </div>
   );
 }

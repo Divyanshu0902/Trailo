@@ -1,9 +1,9 @@
 # Current Project State
 
-**Last updated:** Phase 4C Step 2C (Node Selection and Source Viewer completed and verified)
-**Current phase:** Phase 4C — Interactive Graph and Source Explorer (Steps 1, 2B, 2C complete; Step 3 pending review and authorization)
-**Verified commit:** 5d8b0b5 (feat: render interactive repository dependency graph; working tree contains uncommitted Phase 4C Step 2C implementation)
-**Branch:** main
+**Last updated:** Phase 4C UI Redesign Step 1 (Application Shell completed and verified)
+**Current phase:** Phase 4C — Interactive Graph and Source Explorer (Application Shell complete; Step 3 File Tree pending review and authorization)
+**Verified commit:** 5d8b0b5 (feat: render interactive repository dependency graph; working tree contains Phase 4C Step 2C and UI Redesign Step 1 implementations)
+**Branch:** uiModify
 
 ## Phase Roadmap Status
 
@@ -69,16 +69,23 @@
   - Unified line-number rendering (`client/src/components/SourceViewer.jsx`, `client/src/App.css`): Unified `.source-code-row` layout pairing line numbers with code content per row, physically preventing vertical gutter drift or disappearing line numbers on trailing lines. Honest loading indicator is rendered while awaiting initial file payload.
   - Source line splitting & indentation (`client/src/utils/sourceHighlighter.js`): Shared `splitSourceLines` utility normalizing CRLF/LF, preserving leading spaces, tabs, and consecutive blank lines, while stripping terminal EOF split artifacts to match backend `scanner.countLines` and `chunker.splitLines`. Monospace display enforces `tab-size: 2; -moz-tab-size: 2; white-space: pre;`.
   - Safe syntax highlighting (`prismjs@^1.30.0`): Syntax tokenization mapped to pure React `<span>` elements with unique keys and zero `dangerouslySetInnerHTML`, supporting JS, TS, JSX, TSX, JSON, CSS, and Markdown with dark theme token colors and plain-text fallback.
-  - Graph state & header synchronization fix: Resolved contract mismatch where `computeGraphLayout` returned positioned nodes array but `loadGraphFromPayload` accessed `.nodes` property (which was `undefined`), resetting `nodes` and causing `GraphCanvas` to display "No Repository Indexed" while `ExploreHeader` displayed valid statistics. Added dual-compatibility to `computeGraphLayout`, corrected `loadGraphFromPayload` state assignment, restored `repoPath` synchronization on load, and cleared stale graph state on scan failure.
-- **Automated test suite:** 120/120 tests passing cleanly across 29 suites with Node.js built-in runner (`node --test`), covering health endpoint, repository scanner, line chunker, JS/TS analyzer, path resolver, index store, end-to-end repository indexing, graph builder, graph routes, scan routes, secure file content routes, graph selection engine, source loader cache/race protection, browser fetch invocation receiver bindings, line splitting and newline preservation, Prism grammar resolution and tokenization, resizer panel width clamping, and graph layout state synchronization.
-- **Client production build:** Verified `vite build` cleanly emitting production assets into `client/dist/` in 1.97s.
+  - Collapsible source explorer: Explorer panel is collapsed by default after scanning, granting full viewport width to the dependency graph. Automatically expands on node selection, updates when clicking other nodes without closing, supports manual collapse via `›` control or deselection via `✕`, reopens when clicking a node again on canvas or via the docked `‹ Source` tab, and preserves custom resized panel width (`320px` to `850px`).
+- **VS Code-inspired application shell (Phase 4C UI Redesign Step 1):** Implemented in `client/` and verified.
+  - Top Application Bar (`client/src/components/AppTitleBar.jsx`): Houses official product logo `assets/logo.png`, "Trailo" title, active repository pill, centered workspace title, and layout toggle buttons (sidebar toggle `Ctrl+B`, source viewer toggle).
+  - Activity Bar (`client/src/components/ActivityBar.jsx`): 48px wide persistent activity bar on the far left featuring categories: Scanner (`ScanIcon`), Files (`FilesIcon`), Internal dependencies (`InternalDepIcon`), External dependencies (`ExternalDepIcon`), and Unresolved dependencies (`UnresolvedDepIcon`), with dynamic badge counters and warning states.
+  - Contextual Sidebar (`client/src/components/ContextualSidebar.jsx`): 280px sidebar beside activity bar with header collapse button, hosting repository scan form under "Scanner", and truthful placeholders for Files, Internal, External, and Unresolved categories.
+  - Main Workspace Area (`client/src/components/WorkspaceTabBar.jsx`, `client/src/components/GraphCanvas.jsx`, `client/src/components/SourceViewer.jsx`): Retains full graph canvas, collapsible and resizable source viewer (320px–850px), syntax highlighting, and graph selection highlights.
+  - Consistent SVG Icon System (`client/src/components/Icons.jsx`): Developer icon system with uniform 24x24 viewBox, stroke-width 1.75, fill none, stroke currentColor without adding external npm dependencies.
+  - Shell Navigation State (`client/src/utils/graphSelection.js`): Pure deterministic helper `transitionActivityBarState` handles category switching, collapse/expand toggle on repeated clicks, and sidebar state persistence.
+- **Automated test suite:** 133/133 tests passing cleanly across 31 suites with Node.js built-in runner (`node --test`), covering health endpoint, repository scanner, line chunker, JS/TS analyzer, path resolver, index store, end-to-end repository indexing, graph builder, graph routes, scan routes, secure file content routes, graph selection engine, source loader cache/race protection, browser fetch invocation receiver bindings, line splitting and newline preservation, Prism grammar resolution and tokenization, resizer panel width clamping, graph layout state synchronization, collapsible source explorer state transitions, and application shell navigation transitions.
+- **Client production build:** Verified `vite build` cleanly emitting production assets into `client/dist/` in 2.37s.
 - **Git & Whitespace:** `git diff --check` reports 0 errors.
 
 ## Open Items & Next Intended Task
 
-- **Current Increment Status:** Phase 4C Step 2C — Node Selection and Source Viewer Stabilization (including Graph Canvas state synchronization fix; completed, tested, and verified; awaiting developer review and approval).
-- **Next Phase / Increment:** Phase 4C Step 3 — Repository File Tree Panel (left panel folder tree hierarchy synchronized with graph and source viewer).
-- **Execution rule:** Phase 4C Step 3 and later phases remain **not started**. Implementation will begin only upon explicit user authorization.
+- **Current Increment Status:** Phase 4C UI Redesign Step 1 — Application Shell (completed, tested, and verified; awaiting developer review and approval).
+- **Next Phase / Increment:** Phase 4C UI Redesign Step 2 / Step 3 (Welcome Screen and Repository File Tree / Dependency Lists).
+- **Execution rule:** Next steps remain **not started**. Implementation will begin only upon explicit user authorization.
 
 ## Update Rule
 
