@@ -1,8 +1,8 @@
 # Current Project State
 
-**Last updated:** Phase 4B UI Interaction Specification (Focused Revision completed and under review)
-**Current phase:** Phase 4B — UI Interaction Specification (Revised specification in `docs/UI_INTERACTION_SPEC.md`; awaiting review and approval before Phase 4C)
-**Verified commit:** 290a361 (feat: add dependency graph API; working tree contains uncommitted Phase 4B documentation)
+**Last updated:** Phase 4C Step 1 (Backend Prerequisites completed and verified)
+**Current phase:** Phase 4C — Interactive Graph and Source Explorer (Step 1 complete; Step 2 pending review and authorization)
+**Verified commit:** 290a361 (feat: add dependency graph API; working tree contains uncommitted Phase 4B spec and Phase 4C Step 1 implementation)
 **Branch:** main
 
 ## Phase Roadmap Status
@@ -13,7 +13,7 @@
 | **Phase 1** | App skeleton | **Complete** (committed in `e410760`) |
 | **Phase 2** | Safe scanning | **Complete** (committed in `e410760`, 10/10 tests pass) |
 | **Phase 3** | Index and dependency extraction | **Complete** (committed in `20c0ecf`, 54/54 tests pass) |
-| **Phase 4** | Graph and source explorer | **In Progress** (Phase 4A complete, 61/61 tests pass; Phase 4B spec drafted; Phase 4C pending approval) |
+| **Phase 4** | Graph and source explorer | **In Progress** (Phase 4A complete; Phase 4B spec finalized; Phase 4C Step 1 complete, 90/90 tests pass; Steps 2–4 pending) |
 | **Phase 5** | Q&A vertical slice | **Not Started** |
 | **Phase 6** | Citation validation and integration | **Not Started** |
 | **Phase 7** | Complete user journey | **Not Started** |
@@ -52,15 +52,18 @@
   - Structured 404 error responses for unindexed snapshots or missing IDs (`{ error: { code: 'REPOSITORY_NOT_FOUND', message: '...' } }`).
 - **UI interaction specification (Phase 4B):** Documented in `docs/UI_INTERACTION_SPEC.md` (Focused Revision).
   - Formally specifies dual workspaces (Explore, Ask Trailo), 3-panel split layouts with flexible laptop-friendly sizing, core MVP vs. optional/deferred features, truthful empty states, citation validation UX, and minimal Phase 4C backend prerequisites.
-- **Automated test suite:** 61/61 tests passing cleanly across 18 suites with Node.js built-in runner (`node --test`), covering health endpoint, repository scanner, line chunker, JS/TS analyzer, path resolver, index store, end-to-end repository indexing, graph builder unit tests, and graph route integration tests.
+- **Backend prerequisites for interactive explorer (Phase 4C Step 1):** Implemented in `server/src/indexer/` (`scanRoutes.js`, `fileRoutes.js`).
+  - Scan initialization: `POST /api/scan` and `POST /api/repositories` with input validation, `ScannerError` HTTP mapping, and repository summary responses.
+  - Source content retrieval: `GET /api/repositories/:id/files?path=...` and `GET /api/files?path=...` (also `.../files/*`) with strict in-memory snapshot retrieval, POSIX relative path validation, and traversal prevention (`INVALID_FILE_PATH`, `FILE_NOT_FOUND`).
+- **Automated test suite:** 90/90 tests passing cleanly across 22 suites with Node.js built-in runner (`node --test`), covering health endpoint, repository scanner, line chunker, JS/TS analyzer, path resolver, index store, end-to-end repository indexing, graph builder unit tests, graph route integration tests, scan route API tests, and secure file content API tests with encoded/double-encoded path defenses.
 - **Client production build:** Verified `vite build` cleanly emitting production assets into `client/dist/`.
 - **Git & Whitespace:** `git diff --check` reports 0 errors.
 
 ## Open Items & Next Intended Task
 
-- **Current Increment Status:** Phase 4B — UI Interaction Specification (completed and documented in `docs/UI_INTERACTION_SPEC.md`; awaiting developer review and approval).
-- **Next Phase / Increment:** Phase 4C — Interactive Graph and Source Explorer (frontend graph visualization, search/filter, selection, and source preview implementation).
-- **Execution rule:** Phase 4C remains **not started**. Implementation will begin only upon explicit user authorization after review of the Phase 4B specification.
+- **Current Increment Status:** Phase 4C Step 1 — Backend Prerequisites (completed, tested, and verified; awaiting developer review and approval).
+- **Next Phase / Increment:** Phase 4C Step 2 — Interactive Dependency Graph UI (render nodes and directed edges on canvas, zoom/pan/fit-to-view, selection states).
+- **Execution rule:** Phase 4C Steps 2–4 remain **not started**. Implementation of Step 2 will begin only upon explicit user authorization.
 
 ## Update Rule
 

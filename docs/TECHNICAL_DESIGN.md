@@ -12,17 +12,24 @@
 - Keep provider-specific request/response formats inside the model adapter.
 - Keep indexing warnings visible to the UI and testable.
 
-## Proposed API surface
+## Verified API surface (Implemented)
 
 - `GET /api/health` — service health and basic capability status.
-- `POST /api/repositories` — validate/register a repository and initiate indexing.
-- `GET /api/repositories/:id/status` — current indexing state and warnings.
-- `GET /api/repositories/:id/files` — indexed file listing and optional supported filters.
-- `GET /api/repositories/:id/graph` — graph nodes and detected edges.
-- `GET /api/repositories/:id/files/:fileId` — file metadata, symbols, and source preview subject to size limits.
-- `POST /api/repositories/:id/questions` — ask a repository-grounded question.
+- `POST /api/scan` & `POST /api/repositories` — validate local root, execute safe scanning and indexing pipeline, and return repository summary.
+  - Body: `{ rootPath: string, scannerOptions?: object, chunkOptions?: object }` (also accepts `{ path: string }`)
+  - Success: HTTP 200 `{ repositoryId, rootPath, indexedAt, summary, warnings }`
+  - Error: `{ error: { code: string, message: string } }` (`INVALID_ROOT` [400], `NOT_A_DIRECTORY` [400], `ROOT_NOT_FOUND` [404], `ROOT_ACCESS_ERROR` [403], `INDEXING_ERROR` [500])
+- `GET /api/repositories/:id/files?path=...` & `GET /api/files?path=...` (also `.../files/*`) — retrieve source content strictly from the active in-memory index snapshot.
+  - Validation: rejects `..` traversal, leading slashes, Windows drive paths, and null bytes (`400 INVALID_FILE_PATH`).
+  - Confinement: returns content only for files present in `snapshot.filesMap` (`404 FILE_NOT_FOUND`).
+  - Success: HTTP 200 `{ path, content, lineCount, language, size, extension }`
+- `GET /api/repositories/:id/graph` & `GET /api/graph` — dependency graph payload with nodes, edges, unresolved/external records, and summary metrics.
 
-These endpoints are proposals until each is reviewed and implemented. Do not implement all endpoints in a single task.
+## Future API surface (Planned)
+
+- `GET /api/repositories/:id/status` — background indexing state and progress streaming (deferred).
+- `POST /api/repositories/:id/questions` — ask a repository-grounded question with Ollama (Phase 5).
+- `POST /api/repositories/:id/citations/validate` — citation validation service (Phase 6).
 
 ## Conceptual records and contracts
 
