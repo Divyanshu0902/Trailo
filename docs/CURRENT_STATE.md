@@ -1,8 +1,8 @@
 # Current Project State
 
-**Last updated:** Phase 4C Step 2B (Real Dependency Graph Rendering completed and verified)
-**Current phase:** Phase 4C — Interactive Graph and Source Explorer (Step 1 complete, Step 2B complete; Steps 3–4 pending review and authorization)
-**Verified commit:** 290a361 (feat: add dependency graph API; working tree contains uncommitted Phase 4B spec, Phase 4C Step 1 API, and Phase 4C Step 2B client implementation)
+**Last updated:** Phase 4C Step 2C (Node Selection and Source Viewer completed and verified)
+**Current phase:** Phase 4C — Interactive Graph and Source Explorer (Steps 1, 2B, 2C complete; Step 3 pending review and authorization)
+**Verified commit:** 5d8b0b5 (feat: render interactive repository dependency graph; working tree contains uncommitted Phase 4C Step 2C implementation)
 **Branch:** main
 
 ## Phase Roadmap Status
@@ -13,7 +13,7 @@
 | **Phase 1** | App skeleton | **Complete** (committed in `e410760`) |
 | **Phase 2** | Safe scanning | **Complete** (committed in `e410760`, 10/10 tests pass) |
 | **Phase 3** | Index and dependency extraction | **Complete** (committed in `20c0ecf`, 54/54 tests pass) |
-| **Phase 4** | Graph and source explorer | **In Progress** (Phase 4A complete; Phase 4B spec finalized; Phase 4C Step 1 & Step 2B complete; Steps 3–4 pending) |
+| **Phase 4** | Graph and source explorer | **In Progress** (Phase 4A, 4B, 4C Steps 1, 2B, 2C complete, 100/100 tests pass; Step 3 pending) |
 | **Phase 5** | Q&A vertical slice | **Not Started** |
 | **Phase 6** | Citation validation and integration | **Not Started** |
 | **Phase 7** | Complete user journey | **Not Started** |
@@ -61,15 +61,23 @@
   - Custom file node (`client/src/components/FileNode.jsx`): Shows language badge (`JS`, `TS`, `TSX`, `JSX`), file name, directory path, line count, and byte size.
   - Deterministic layout (`client/src/utils/layout.js`): Layered topological layout for connected dependency graphs with orderly grid tiling for isolated nodes.
   - Truthful states: Unindexed state prompt, in-flight loading overlay, structured error card overlay, and an informative banner when indexed files have zero internal dependency edges.
-  - Scope discipline maintained: Source viewer, edge clicking, file tree, and Q&A remain unbuilt.
-- **Automated test suite:** 90/90 tests passing cleanly across 22 suites with Node.js built-in runner (`node --test`), covering health endpoint, repository scanner, line chunker, JS/TS analyzer, path resolver, index store, end-to-end repository indexing, graph builder unit tests, graph route integration tests, scan route API tests, and secure file content API tests with encoded/double-encoded path defenses.
-- **Client production build:** Verified `vite build` cleanly emitting production assets into `client/dist/`.
+- **Node selection & source viewer stabilization (Phase 4C Step 2C):** Implemented in `client/` and verified with automated test suite.
+  - Selection engine (`client/src/utils/graphSelection.js`): Pure deterministic helper classifying nodes (`selected`, `incoming`, `outgoing`, `dimmed`, `normal`) and directed edges (`incoming`, `outgoing`, `dimmed`, `normal`). Handles isolated nodes (zero incident edges).
+  - Sticky selection: Single click selects active file; clicking the already-selected node retains selection rather than toggling off. Deselection is scoped to background pane clicks and the close `[✕]` button.
+  - Asynchronous source loading (`client/src/App.jsx`, `client/src/utils/sourceLoader.js`): Driven by React `useEffect` with cleanup cancellation flag (`isCurrent = false`) ensuring superseded in-flight requests never freeze the viewer or overwrite newer selections. Native browser `window.fetch` is invoked directly with `window` as its explicit receiver, guaranteeing zero "Illegal invocation" WebIDL errors without fragile `.call()` or detached function references.
+  - Draggable splitter divider (`.workspace-splitter`): Draggable divider between graph canvas and source viewer supporting mouse dragging and keyboard adjustment (ArrowLeft, ArrowRight, Home, End) bounded between 320px and 850px (reserving at least 300px for graph canvas).
+  - Unified line-number rendering (`client/src/components/SourceViewer.jsx`, `client/src/App.css`): Unified `.source-code-row` layout pairing line numbers with code content per row, physically preventing vertical gutter drift or disappearing line numbers on trailing lines. Honest loading indicator is rendered while awaiting initial file payload.
+  - Source line splitting & indentation (`client/src/utils/sourceHighlighter.js`): Shared `splitSourceLines` utility normalizing CRLF/LF, preserving leading spaces, tabs, and consecutive blank lines, while stripping terminal EOF split artifacts to match backend `scanner.countLines` and `chunker.splitLines`. Monospace display enforces `tab-size: 2; -moz-tab-size: 2; white-space: pre;`.
+  - Safe syntax highlighting (`prismjs@^1.30.0`): Syntax tokenization mapped to pure React `<span>` elements with unique keys and zero `dangerouslySetInnerHTML`, supporting JS, TS, JSX, TSX, JSON, CSS, and Markdown with dark theme token colors and plain-text fallback.
+  - Graph state & header synchronization fix: Resolved contract mismatch where `computeGraphLayout` returned positioned nodes array but `loadGraphFromPayload` accessed `.nodes` property (which was `undefined`), resetting `nodes` and causing `GraphCanvas` to display "No Repository Indexed" while `ExploreHeader` displayed valid statistics. Added dual-compatibility to `computeGraphLayout`, corrected `loadGraphFromPayload` state assignment, restored `repoPath` synchronization on load, and cleared stale graph state on scan failure.
+- **Automated test suite:** 120/120 tests passing cleanly across 29 suites with Node.js built-in runner (`node --test`), covering health endpoint, repository scanner, line chunker, JS/TS analyzer, path resolver, index store, end-to-end repository indexing, graph builder, graph routes, scan routes, secure file content routes, graph selection engine, source loader cache/race protection, browser fetch invocation receiver bindings, line splitting and newline preservation, Prism grammar resolution and tokenization, resizer panel width clamping, and graph layout state synchronization.
+- **Client production build:** Verified `vite build` cleanly emitting production assets into `client/dist/` in 1.97s.
 - **Git & Whitespace:** `git diff --check` reports 0 errors.
 
 ## Open Items & Next Intended Task
 
-- **Current Increment Status:** Phase 4C Step 2B — Real Dependency Graph Rendering (completed, tested, and verified; awaiting developer review and approval).
-- **Next Phase / Increment:** Phase 4C Step 2C / Step 3 — Node selection states and Source viewer / File tree panel.
+- **Current Increment Status:** Phase 4C Step 2C — Node Selection and Source Viewer Stabilization (including Graph Canvas state synchronization fix; completed, tested, and verified; awaiting developer review and approval).
+- **Next Phase / Increment:** Phase 4C Step 3 — Repository File Tree Panel (left panel folder tree hierarchy synchronized with graph and source viewer).
 - **Execution rule:** Phase 4C Step 3 and later phases remain **not started**. Implementation will begin only upon explicit user authorization.
 
 ## Update Rule

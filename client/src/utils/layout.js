@@ -8,13 +8,16 @@
  */
 export function computeGraphLayout(nodes, edges) {
   if (!Array.isArray(nodes) || nodes.length === 0) {
-    return [];
+    const empty = [];
+    empty.nodes = [];
+    empty.edges = [];
+    return empty;
   }
 
   // 1. If there are no edges, tile all nodes in a responsive grid
   if (!Array.isArray(edges) || edges.length === 0) {
     const cols = Math.min(5, Math.max(2, Math.ceil(Math.sqrt(nodes.length))));
-    return nodes.map((node, index) => {
+    const positioned = nodes.map((node, index) => {
       const col = index % cols;
       const row = Math.floor(index / cols);
       return {
@@ -25,6 +28,9 @@ export function computeGraphLayout(nodes, edges) {
         },
       };
     });
+    positioned.nodes = positioned;
+    positioned.edges = [];
+    return positioned;
   }
 
   // 2. Build in-degree, out-degree, and child maps
@@ -151,5 +157,7 @@ export function computeGraphLayout(nodes, edges) {
     });
   }
 
+  positionedNodes.nodes = positionedNodes;
+  positionedNodes.edges = Array.isArray(edges) ? edges : [];
   return positionedNodes;
 }

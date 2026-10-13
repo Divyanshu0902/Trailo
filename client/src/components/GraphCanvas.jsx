@@ -17,12 +17,26 @@ export function GraphCanvas({
   isScanning,
   error,
   onDismissError,
+  onNodeClick,
+  onPaneClick,
 }) {
   const nodeTypes = useMemo(() => ({ fileNode: FileNode }), []);
 
   const hasNodes = nodes && nodes.length > 0;
   const hasEdges = edges && edges.length > 0;
   const summary = graphData?.summary;
+
+  const handleNodeClick = (_event, node) => {
+    if (onNodeClick) {
+      onNodeClick(node.id);
+    }
+  };
+
+  const handlePaneClick = () => {
+    if (onPaneClick) {
+      onPaneClick();
+    }
+  };
 
   return (
     <div className="graph-canvas-container">
@@ -112,6 +126,8 @@ export function GraphCanvas({
           edges={edges}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
+          onNodeClick={handleNodeClick}
+          onPaneClick={handlePaneClick}
           nodeTypes={nodeTypes}
           fitView
           fitViewOptions={{ padding: 0.2 }}

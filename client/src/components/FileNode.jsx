@@ -47,15 +47,30 @@ function getBadge(language, ext) {
 export function FileNode({ data }) {
   const dirPath = getDirectory(data.path);
   const badge = getBadge(data.language, data.extension);
+  const highlightState = data.highlightState || 'normal';
+
+  let stateTag = null;
+  if (highlightState === 'selected') {
+    stateTag = <span className="node-rel-tag tag-selected">Active</span>;
+  } else if (highlightState === 'incoming') {
+    stateTag = <span className="node-rel-tag tag-incoming">↳ Dependent</span>;
+  } else if (highlightState === 'outgoing') {
+    stateTag = <span className="node-rel-tag tag-outgoing">↱ Dependency</span>;
+  }
 
   return (
-    <div className="trailo-file-node" title={data.path}>
+    <div
+      className={`trailo-file-node node-highlight-${highlightState}`}
+      title={data.path}
+      data-testid={`file-node-${data.name}`}
+    >
       <Handle type="target" position={Position.Left} className="node-handle handle-target" />
 
       <div className="node-card-body">
         <div className="node-title-row">
           <span className={`badge-lang badge-lang-${badge.toLowerCase()}`}>{badge}</span>
           <span className="node-filename" title={data.name}>{data.name}</span>
+          {stateTag}
         </div>
 
         <div className="node-path-row" title={data.path}>
