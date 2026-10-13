@@ -5,17 +5,23 @@ import {
   InternalDepIcon,
   ExternalDepIcon,
   UnresolvedDepIcon,
+  GraphIcon,
+  ClusterIcon,
+  AskTrailoIcon,
 } from './Icons.jsx';
 
 /**
  * Narrow, persistent activity bar on the far-left of the application shell.
- * Never collapses; clicking active item toggles contextual sidebar.
+ * Never collapses; clicking top items toggles contextual sidebar,
+ * clicking bottom items navigates/re-opens workspaces.
  */
 export function ActivityBar({
   activeTab,
   isSidebarOpen,
   onSelectTab,
   summary,
+  activeWorkspace,
+  onSelectWorkspace,
 }) {
   const tabs = [
     {
@@ -51,9 +57,27 @@ export function ActivityBar({
     },
   ];
 
+  const bottomWorkspaces = [
+    {
+      id: 'graph',
+      label: 'Dependency Graph',
+      icon: GraphIcon,
+    },
+    {
+      id: 'cluster',
+      label: 'Cluster View',
+      icon: ClusterIcon,
+    },
+    {
+      id: 'ask',
+      label: 'Ask Trailo',
+      icon: AskTrailoIcon,
+    },
+  ];
+
   return (
     <nav className="shell-activity-bar" aria-label="Activity Bar">
-      <div className="activity-bar-items">
+      <div className="activity-bar-items activity-bar-top">
         {tabs.map((tab) => {
           const IconComponent = tab.icon;
           const isActive = isSidebarOpen && activeTab === tab.id;
@@ -69,7 +93,7 @@ export function ActivityBar({
               aria-pressed={isActive}
             >
               <div className="activity-icon-wrapper">
-                <IconComponent size={20} className="activity-icon" />
+                <IconComponent size={23} className="activity-icon" />
                 {tab.badge !== null && tab.badge > 0 && (
                   <span
                     className={`activity-badge ${tab.isWarning ? 'badge-warning' : ''}`}
@@ -83,7 +107,29 @@ export function ActivityBar({
           );
         })}
       </div>
+
+      <div className="activity-bar-items activity-bar-bottom">
+        {bottomWorkspaces.map((item) => {
+          const IconComponent = item.icon;
+          const isActive = activeWorkspace === item.id;
+
+          return (
+            <button
+              key={item.id}
+              type="button"
+              className={`activity-bar-button ${isActive ? 'active' : ''}`}
+              onClick={() => onSelectWorkspace && onSelectWorkspace(item.id)}
+              title={item.label}
+              aria-label={item.label}
+              aria-pressed={isActive}
+            >
+              <div className="activity-icon-wrapper">
+                <IconComponent size={23} className="activity-icon" />
+              </div>
+            </button>
+          );
+        })}
+      </div>
     </nav>
   );
 }
-

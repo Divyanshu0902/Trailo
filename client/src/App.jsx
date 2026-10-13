@@ -8,6 +8,7 @@ import { AppStatusBar } from './components/AppStatusBar.jsx';
 import { GraphCanvas } from './components/GraphCanvas.jsx';
 import { SourceViewer } from './components/SourceViewer.jsx';
 import { StartupScreen } from './components/StartupScreen.jsx';
+import { ClusterIcon, AskTrailoIcon } from './components/Icons.jsx';
 import { computeGraphLayout } from './utils/layout.js';
 import {
   computeSelectionHighlights,
@@ -28,7 +29,12 @@ export default function App() {
   const [activeSidebarTab, setActiveSidebarTab] = useState('scanner');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
+  // Open workspaces & active workspace state
+  const [openWorkspaces, setOpenWorkspaces] = useState(['graph']);
+  const [activeWorkspace, setActiveWorkspace] = useState('graph');
+
   // Selection & Source explorer state
+
   const [selectedNodeId, setSelectedNodeId] = useState(null);
   const [isSourceOpen, setIsSourceOpen] = useState(false);
   const [sourceRetryCount, setSourceRetryCount] = useState(0);
@@ -144,8 +150,14 @@ export default function App() {
     if (!payload || !payload.nodes || payload.nodes.length === 0) {
       setNodes([]);
       setEdges([]);
+      setOpenWorkspaces([]);
+      setActiveWorkspace(null);
       return;
     }
+
+    setOpenWorkspaces((prev) => (prev.includes('graph') ? prev : [...prev, 'graph']));
+    setActiveWorkspace('graph');
+
 
     const rawNodes = payload.nodes.map((node) => ({
       id: node.id,
@@ -503,6 +515,33 @@ export default function App() {
     [activeSidebarTab, isSidebarOpen]
   );
 
+  // Workspace navigation and closing
+  const handleSelectWorkspace = useCallback(
+    (wsId) => {
+      if (wsId === 'graph' && !graphData) {
+        // If graph requested without active repository, open scanner tab in sidebar
+        setActiveSidebarTab('scanner');
+        setIsSidebarOpen(true);
+        return;
+      }
+      setOpenWorkspaces((prev) => (prev.includes(wsId) ? prev : [...prev, wsId]));
+      setActiveWorkspace(wsId);
+    },
+    [graphData]
+  );
+
+  const handleCloseWorkspace = useCallback((wsId) => {
+    setOpenWorkspaces((prev) => {
+      const next = prev.filter((id) => id !== wsId);
+      setActiveWorkspace((currentActive) => {
+        if (currentActive !== wsId) return currentActive;
+        return next.length > 0 ? next[next.length - 1] : null;
+      });
+      return next;
+    });
+  }, []);
+
+
   // Keyboard shortcut Ctrl+B (or Cmd+B) to toggle sidebar
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -567,6 +606,8 @@ export default function App() {
           isSidebarOpen={isSidebarOpen}
           onSelectTab={handleSelectActivityTab}
           summary={graphData?.summary}
+          activeWorkspace={activeWorkspace}
+          onSelectWorkspace={handleSelectWorkspace}
         />
 
         {isSidebarOpen && (
@@ -587,6 +628,10 @@ export default function App() {
         <div className="shell-main-workspace">
           <WorkspaceTabBar
             hasRepository={Boolean(graphData)}
+            openWorkspaces={openWorkspaces}
+            activeWorkspace={activeWorkspace}
+            onSelectWorkspace={handleSelectWorkspace}
+            onCloseWorkspace={handleCloseWorkspace}
             isSidebarOpen={isSidebarOpen}
             onToggleSidebar={() => setIsSidebarOpen((open) => !open)}
             isSourceOpen={isSourceOpen}
@@ -595,6 +640,30 @@ export default function App() {
 
           {!graphData ? (
             <StartupScreen />
+          ) : !activeWorkspace || openWorkspaces.length === 0 ? (
+            <StartupScreen />
+          ) : activeWorkspace === 'cluster' ? (
+            <div className="workspace-placeholder" role="region" aria-label="Cluster View Workspace">
+              <div className="workspace-placeholder-content">
+                <div className="placeholder-icon-badge">
+                  <ClusterIcon size={32} />
+                </div>
+                <h2 className="placeholder-title">Cluster View</h2>
+                <p className="placeholder-desc">Groups related code into visual clusters.</p>
+                <div className="placeholder-status-pill">Phase 4D — Clustering &amp; Architecture Visualization</div>
+              </div>
+            </div>
+          ) : activeWorkspace === 'ask' ? (
+            <div className="workspace-placeholder" role="region" aria-label="Ask Trailo Workspace">
+              <div className="workspace-placeholder-content">
+                <div className="placeholder-icon-badge">
+                  <AskTrailoIcon size={32} />
+                </div>
+                <h2 className="placeholder-title">Ask Trailo</h2>
+                <p className="placeholder-desc">Get code-grounded answers from AI.</p>
+                <div className="placeholder-status-pill">Phase 5 — Codebase Q&amp;A Vertical Slice</div>
+              </div>
+            </div>
           ) : (
             <main
               ref={workspaceRef}
@@ -614,6 +683,7 @@ export default function App() {
                   onPaneClick={() => handleSelectNode(null)}
                 />
               </div>
+
 
               {graphData && graphData.nodes && graphData.nodes.length > 0 && isSourceOpen && (
                 <>
