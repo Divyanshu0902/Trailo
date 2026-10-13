@@ -1,0 +1,270 @@
+.trailo-app {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.trailo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.logo-icon {
+  font-size: 1.75rem;
+}
+
+.logo-text {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+.header-meta {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+}
+
+.trailo-main {
+  flex: 1;
+  padding: 2.5rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.hero h1 {
+  font-size: 2.25rem;
+  font-weight: 800;
+  line-height: 1.2;
+  margin-bottom: 0.75rem;
+  background: linear-gradient(135deg, #ffffff 0%, #8b949e 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero-subtitle {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  max-width: 680px;
+}
+
+.status-section h2,
+.roadmap-preview h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+.status-card {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.status-loading {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--border-color);
+  border-top-color: var(--accent-color);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.status-indicator-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.dot-success {
+  background-color: var(--success-color);
+  box-shadow: 0 0 8px rgba(63, 185, 80, 0.4);
+}
+
+.dot-error {
+  background-color: var(--error-color);
+  box-shadow: 0 0 8px rgba(248, 81, 73, 0.4);
+}
+
+.status-title {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.status-tag {
+  font-size: 0.75rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-ok {
+  background-color: rgba(63, 185, 80, 0.15);
+  color: var(--success-color);
+  border: 1px solid rgba(63, 185, 80, 0.3);
+}
+
+.status-failed {
+  background-color: rgba(248, 81, 73, 0.15);
+  color: var(--error-color);
+  border: 1px solid rgba(248, 81, 73, 0.3);
+}
+
+.status-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  background-color: var(--bg-card);
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 1.25rem;
+  border: 1px solid var(--border-color);
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.detail-item .label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.detail-item .value {
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+
+.error-description {
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.error-technical {
+  font-size: 0.85rem;
+  color: var(--error-color);
+  margin-bottom: 1.25rem;
+}
+
+.btn {
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 1px solid transparent;
+}
+
+.btn-primary {
+  background-color: var(--accent-color);
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background-color: var(--accent-hover);
+}
+
+.btn-secondary {
+  background-color: var(--bg-card);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.btn-secondary:hover {
+  background-color: var(--border-color);
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.feature-card {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.feature-step {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--accent-color);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.feature-card h3 {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.feature-card p {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.trailo-footer {
+  border-top: 1px solid var(--border-color);
+  padding-top: 1.5rem;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}

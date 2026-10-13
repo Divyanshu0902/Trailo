@@ -1,0 +1,18 @@
+{
+  "name": "trailo",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "start:server": "npm --workspace=server start",
+    "dev:server": "npm --workspace=server run dev",
+    "dev:client": "npm --workspace=client run dev",
+    "build:client": "npm --workspace=client run build",
+    "test": "npm --workspace=server test",
+    "test:server": "npm --workspace=server test"
+  }
+}
