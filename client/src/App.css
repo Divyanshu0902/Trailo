@@ -1295,7 +1295,7 @@
 .activity-bar-button {
   position: relative;
   width: 48px;
-  height: 44px;
+  height: 48px;
   background: none;
   border: none;
   border-left: 2px solid transparent;
@@ -1324,9 +1324,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
 }
+
 
 .activity-icon {
   transition: transform 0.15s ease;

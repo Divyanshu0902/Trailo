@@ -11,9 +11,16 @@ const appCssPath = fileURLToPath(new URL('../../client/src/App.css', import.meta
 
 describe('Activity Bar Enhancements & Crossable Workspaces', () => {
   describe('1. Activity Bar Icon Sizing & Bottom Workspace Icons (client/src/components/ActivityBar.jsx)', () => {
-    it('increases activity bar icon size to 23px for improved legibility', () => {
+    it('increases activity bar icon size to 28px (~1.25x) for improved legibility', () => {
       const content = fs.readFileSync(activityBarPath, 'utf8');
-      assert.match(content, /<IconComponent size=\{23\}/);
+      assert.match(content, /<IconComponent size=\{28\}/);
+    });
+
+    it('excludes number badges and countings from all activity bar icons', () => {
+      const content = fs.readFileSync(activityBarPath, 'utf8');
+      assert.doesNotMatch(content, /activity-badge/);
+      assert.doesNotMatch(content, /tab\.badge/);
+      assert.doesNotMatch(content, /badge-warning/);
     });
 
     it('defines the 3 bottom workspace icons: Dependency Graph, Cluster View, and Ask Trailo', () => {
@@ -37,6 +44,7 @@ describe('Activity Bar Enhancements & Crossable Workspaces', () => {
       assert.match(content, /onSelectWorkspace\s*&&\s*onSelectWorkspace\(item\.id\)/);
     });
   });
+
 
   describe('2. Custom SVG Icons (client/src/components/Icons.jsx)', () => {
     it('exports ClusterIcon with standard Lucide viewBox and stroke properties', () => {

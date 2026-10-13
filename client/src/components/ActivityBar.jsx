@@ -28,32 +28,26 @@ export function ActivityBar({
       id: 'scanner',
       label: 'Repository Scanner',
       icon: ScanIcon,
-      badge: null,
     },
     {
       id: 'files',
       label: 'Repository Files',
       icon: FilesIcon,
-      badge: summary?.totalNodes ?? null,
     },
     {
       id: 'internal',
       label: 'Internal Dependencies',
       icon: InternalDepIcon,
-      badge: summary?.totalEdges ?? null,
     },
     {
       id: 'external',
       label: 'External Dependencies',
       icon: ExternalDepIcon,
-      badge: summary?.externalCount ? summary.externalCount : null,
     },
     {
       id: 'unresolved',
       label: 'Unresolved Dependencies',
       icon: UnresolvedDepIcon,
-      badge: summary?.unresolvedCount ? summary.unresolvedCount : null,
-      isWarning: Boolean(summary?.unresolvedCount),
     },
   ];
 
@@ -93,15 +87,7 @@ export function ActivityBar({
               aria-pressed={isActive}
             >
               <div className="activity-icon-wrapper">
-                <IconComponent size={23} className="activity-icon" />
-                {tab.badge !== null && tab.badge > 0 && (
-                  <span
-                    className={`activity-badge ${tab.isWarning ? 'badge-warning' : ''}`}
-                    title={`${tab.badge} items`}
-                  >
-                    {tab.badge > 999 ? '999+' : tab.badge}
-                  </span>
-                )}
+                <IconComponent size={28} className="activity-icon" />
               </div>
             </button>
           );
@@ -124,7 +110,7 @@ export function ActivityBar({
               aria-pressed={isActive}
             >
               <div className="activity-icon-wrapper">
-                <IconComponent size={23} className="activity-icon" />
+                <IconComponent size={28} className="activity-icon" />
               </div>
             </button>
           );
