@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./assets/Trailo_banner2.png" alt="Trailo — Understand any codebase faster" width="100%" />
+  <img src="./assets/Trailo_banner0.png" alt="Trailo — Understand any codebase faster" width="100%" />
 </p>
 
 <p align="center">

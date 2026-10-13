@@ -1,8 +1,8 @@
 # Current Project State
 
-**Last updated:** Phase 4C UI Redesign Step 1 (Application Shell completed and verified)
-**Current phase:** Phase 4C — Interactive Graph and Source Explorer (Application Shell complete; Step 3 File Tree pending review and authorization)
-**Verified commit:** 5d8b0b5 (feat: render interactive repository dependency graph; working tree contains Phase 4C Step 2C and UI Redesign Step 1 implementations)
+**Last updated:** Phase 4C UI Redesign Step 1.1 Navbar Refinement (completed and verified)
+**Current phase:** Phase 4C — Interactive Graph and Source Explorer (Application Shell & Refined Top Navbars complete; Step 2 Welcome Screen pending review and authorization)
+**Verified commit:** fe875eb (feat: add activity bar on left; working tree contains Step 1.1 Navbar Refinements)
 **Branch:** uiModify
 
 ## Phase Roadmap Status
@@ -70,22 +70,23 @@
   - Source line splitting & indentation (`client/src/utils/sourceHighlighter.js`): Shared `splitSourceLines` utility normalizing CRLF/LF, preserving leading spaces, tabs, and consecutive blank lines, while stripping terminal EOF split artifacts to match backend `scanner.countLines` and `chunker.splitLines`. Monospace display enforces `tab-size: 2; -moz-tab-size: 2; white-space: pre;`.
   - Safe syntax highlighting (`prismjs@^1.30.0`): Syntax tokenization mapped to pure React `<span>` elements with unique keys and zero `dangerouslySetInnerHTML`, supporting JS, TS, JSX, TSX, JSON, CSS, and Markdown with dark theme token colors and plain-text fallback.
   - Collapsible source explorer: Explorer panel is collapsed by default after scanning, granting full viewport width to the dependency graph. Automatically expands on node selection, updates when clicking other nodes without closing, supports manual collapse via `›` control or deselection via `✕`, reopens when clicking a node again on canvas or via the docked `‹ Source` tab, and preserves custom resized panel width (`320px` to `850px`).
-- **VS Code-inspired application shell (Phase 4C UI Redesign Step 1):** Implemented in `client/` and verified.
-  - Top Application Bar (`client/src/components/AppTitleBar.jsx`): Houses official product logo `assets/logo.png`, "Trailo" title, active repository pill, centered workspace title, and layout toggle buttons (sidebar toggle `Ctrl+B`, source viewer toggle).
+- **VS Code-inspired application shell (Phase 4C UI Redesign Step 1 & Step 1.1 Refinements):** Implemented in `client/` and verified.
+  - Top Application Bar (`client/src/components/AppTitleBar.jsx`): Compact 30px height, official product logo `assets/logo.png` (enlarged slightly to 20px x 20px for crisp visibility while keeping titlebar compact at 30px), 0.82rem brand title, repository folder name in clean white text separated from Trailo by ` | ` (deep blue pill and highlighting removed), and desktop window controls (minimize, fullscreen/maximize, close) in the top-right corner.
   - Activity Bar (`client/src/components/ActivityBar.jsx`): 48px wide persistent activity bar on the far left featuring categories: Scanner (`ScanIcon`), Files (`FilesIcon`), Internal dependencies (`InternalDepIcon`), External dependencies (`ExternalDepIcon`), and Unresolved dependencies (`UnresolvedDepIcon`), with dynamic badge counters and warning states.
-  - Contextual Sidebar (`client/src/components/ContextualSidebar.jsx`): 280px sidebar beside activity bar with header collapse button, hosting repository scan form under "Scanner", and truthful placeholders for Files, Internal, External, and Unresolved categories.
-  - Main Workspace Area (`client/src/components/WorkspaceTabBar.jsx`, `client/src/components/GraphCanvas.jsx`, `client/src/components/SourceViewer.jsx`): Retains full graph canvas, collapsible and resizable source viewer (320px–850px), syntax highlighting, and graph selection highlights.
-  - Consistent SVG Icon System (`client/src/components/Icons.jsx`): Developer icon system with uniform 24x24 viewBox, stroke-width 1.75, fill none, stroke currentColor without adding external npm dependencies.
+  - Contextual Sidebar (`client/src/components/ContextualSidebar.jsx`): 280px sidebar beside activity bar with 30px header collapse button aligned with workspace tabs, hosting repository scan form under "Scanner", and truthful placeholders for Files, Internal, External, and Unresolved categories.
+  - Compact Workspace Tab Bar (`client/src/components/WorkspaceTabBar.jsx`): Compact 30px height, retaining active `Dependency Graph` tab with 13px icon on the left, and hosting the relocated left primary sidebar toggle (`SidebarIcon`) and right source inspector toggle (`SourceIcon`) in the right corner.
+  - Main Workspace Area (`client/src/components/GraphCanvas.jsx`, `client/src/components/SourceViewer.jsx`): Retains full graph canvas, collapsible and resizable source viewer (320px–850px), syntax highlighting, and graph selection highlights.
+  - Consistent SVG Icon System (`client/src/components/Icons.jsx`): Developer icon system with uniform 24x24 viewBox, stroke-width 1.75, fill none, stroke currentColor, including `MinimizeIcon` and `MaximizeIcon`.
   - Shell Navigation State (`client/src/utils/graphSelection.js`): Pure deterministic helper `transitionActivityBarState` handles category switching, collapse/expand toggle on repeated clicks, and sidebar state persistence.
 - **Automated test suite:** 133/133 tests passing cleanly across 31 suites with Node.js built-in runner (`node --test`), covering health endpoint, repository scanner, line chunker, JS/TS analyzer, path resolver, index store, end-to-end repository indexing, graph builder, graph routes, scan routes, secure file content routes, graph selection engine, source loader cache/race protection, browser fetch invocation receiver bindings, line splitting and newline preservation, Prism grammar resolution and tokenization, resizer panel width clamping, graph layout state synchronization, collapsible source explorer state transitions, and application shell navigation transitions.
-- **Client production build:** Verified `vite build` cleanly emitting production assets into `client/dist/` in 2.37s.
+- **Client production build:** Verified `vite build` cleanly emitting production assets into `client/dist/` in 2.11s.
 - **Git & Whitespace:** `git diff --check` reports 0 errors.
 
 ## Open Items & Next Intended Task
 
-- **Current Increment Status:** Phase 4C UI Redesign Step 1 — Application Shell (completed, tested, and verified; awaiting developer review and approval).
-- **Next Phase / Increment:** Phase 4C UI Redesign Step 2 / Step 3 (Welcome Screen and Repository File Tree / Dependency Lists).
-- **Execution rule:** Next steps remain **not started**. Implementation will begin only upon explicit user authorization.
+- **Current Increment Status:** Phase 4C UI Redesign Step 1.1 — Navbar Refinement (completed, tested, and verified; awaiting developer review and approval).
+- **Next Phase / Increment:** Phase 4C UI Redesign Step 2 — Welcome Screen (introducing `assets/logo2.png`, zero-state guided onboarding, quick recent repos, and empty-state layout).
+- **Execution rule:** Step 2 and subsequent steps remain **not started**. Implementation will begin only upon explicit user authorization.
 
 ## Update Rule
 

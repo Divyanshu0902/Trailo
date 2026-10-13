@@ -471,14 +471,10 @@ export default function App() {
 
   return (
     <div className="trailo-explore-app">
-      {/* Top Application Bar with Logo, Repo Context, and Layout Toggles */}
+      {/* Top Application Bar with Logo, Repo Context, and Window Controls */}
       <AppTitleBar
         repoName={repoName}
         repoPath={graphData?.rootPath || repoPath}
-        isSidebarOpen={isSidebarOpen}
-        onToggleSidebar={() => setIsSidebarOpen((open) => !open)}
-        isSourceOpen={isSourceOpen}
-        onToggleSource={() => setIsSourceOpen((open) => !open)}
       />
 
       {/* Middle Container: Activity Bar + Contextual Sidebar + Main Workspace */}
@@ -505,8 +501,8 @@ export default function App() {
 
         <div className="shell-main-workspace">
           <WorkspaceTabBar
-            selectedNode={selectedNode}
-            repoName={repoName}
+            isSidebarOpen={isSidebarOpen}
+            onToggleSidebar={() => setIsSidebarOpen((open) => !open)}
             isSourceOpen={isSourceOpen}
             onToggleSource={() => setIsSourceOpen((open) => !open)}
           />
