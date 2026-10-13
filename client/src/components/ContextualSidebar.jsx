@@ -8,6 +8,7 @@ import {
   ChevronLeftIcon,
   FolderIcon,
 } from './Icons.jsx';
+import { FileTree } from './FileTree.jsx';
 
 /**
  * Contextual sidebar immediately adjacent to the activity bar.
@@ -22,6 +23,8 @@ export function ContextualSidebar({
   isScanning,
   graphData,
   error,
+  selectedFilePath = null,
+  onSelectFile = () => {},
 }) {
   const summary = graphData?.summary;
   const repoName = graphData?.rootPath
@@ -59,7 +62,7 @@ export function ContextualSidebar({
       </div>
 
       {/* Sidebar Content Area */}
-      <div className="sidebar-body">
+      <div className={`sidebar-body ${activeTab === 'files' ? 'sidebar-body-files' : ''}`}>
         {/* 1. Repository Scanner Category */}
         {activeTab === 'scanner' && (
           <div className="sidebar-section">
@@ -151,17 +154,14 @@ export function ContextualSidebar({
             </div>
 
             {graphData?.nodes && graphData.nodes.length > 0 ? (
-              <div className="sidebar-placeholder-content">
-                <p className="sidebar-hint">
-                  <strong>{summary?.totalNodes}</strong> files indexed into memory.
-                </p>
-                <div className="sidebar-placeholder-card">
-                  <FilesIcon size={24} className="placeholder-icon" />
-                  <h4>File Tree Navigation</h4>
-                  <p>
-                    Full directory tree hierarchy and file filtering will be integrated in Phase 4C Step 3.
-                  </p>
-                </div>
+              <div className="sidebar-file-tree-wrapper">
+                <FileTree
+                  files={graphData.nodes}
+                  selectedFilePath={selectedFilePath}
+                  onSelectFile={onSelectFile}
+                  repoName={repoName}
+                  rootPath={graphData.rootPath}
+                />
               </div>
             ) : (
               <div className="sidebar-empty-state">

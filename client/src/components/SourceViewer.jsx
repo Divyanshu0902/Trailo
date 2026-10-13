@@ -188,13 +188,17 @@ export function SourceViewer({
                   <span className="viewer-error-code">{error.code || 'ERROR'}</span>
                 </div>
               </div>
-              <p className="viewer-error-msg">{error.message || 'Source content unavailable for this file.'}</p>
+              <p className="viewer-error-msg">
+                {error.code === 'REPOSITORY_NOT_FOUND'
+                  ? 'The repository snapshot was not found in server memory (e.g. after a server restart). Click below to re-index the repository.'
+                  : error.message || 'Source content unavailable for this file.'}
+              </p>
               <button
                 type="button"
                 className="btn btn-secondary btn-sm"
                 onClick={onRetry}
               >
-                Retry
+                {error.code === 'REPOSITORY_NOT_FOUND' ? 'Re-index & Load Source' : 'Retry'}
               </button>
             </div>
           </div>

@@ -221,10 +221,40 @@ export default function App() {
 
     defaultSourceLoader
       .loadSource(selectedNodeId)
-      .then((result) => {
+      .then(async (result) => {
         if (!isCurrent) return;
 
         if (result.error) {
+          const activeRoot = graphData?.rootPath || repoPath;
+
+          // If server lost in-memory snapshot (e.g. after server restart), attempt automatic re-indexing
+          if (result.error.code === 'REPOSITORY_NOT_FOUND' && activeRoot) {
+            try {
+              const scanRes = await fetch('/api/scan', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ rootPath: activeRoot }),
+              });
+
+              if (!isCurrent) return;
+
+              if (scanRes.ok) {
+                const retryResult = await defaultSourceLoader.loadSource(selectedNodeId);
+                if (!isCurrent) return;
+
+                if (retryResult.error) {
+                  setSourceState({ isLoading: false, error: retryResult.error, data: null });
+                } else {
+                  setSourceState({ isLoading: false, error: null, data: retryResult.data });
+                }
+                return;
+              }
+            } catch {
+              // Rescan network error - fall through to report original error
+            }
+          }
+
+          if (!isCurrent) return;
           setSourceState({ isLoading: false, error: result.error, data: null });
         } else {
           setSourceState({ isLoading: false, error: null, data: result.data });
@@ -245,7 +275,7 @@ export default function App() {
     return () => {
       isCurrent = false;
     };
-  }, [selectedNodeId, sourceRetryCount]);
+  }, [selectedNodeId, sourceRetryCount, graphData?.rootPath, repoPath]);
 
   /**
    * Handles node selection from the canvas.
@@ -274,6 +304,30 @@ export default function App() {
   );
 
   /**
+   * Handles file selection from the repository file tree.
+   * - Sets active file selection.
+   * - Automatically opens/updates the source explorer.
+   * - If the file has a matching node on the dependency graph, highlights the node and edges.
+   * - If the file has no graph node, clears graph node highlights while still displaying source.
+   */
+  const handleSelectFile = useCallback(
+    (filePath) => {
+      if (!filePath) return;
+
+      setSelectedNodeId(filePath);
+      setIsSourceOpen(true);
+
+      const matchingNode = Array.isArray(nodes) ? nodes.find((n) => n.id === filePath) : null;
+      if (matchingNode) {
+        applyHighlights(filePath, nodes, edges);
+      } else {
+        applyHighlights(null, nodes, edges);
+      }
+    },
+    [nodes, edges, applyHighlights]
+  );
+
+  /**
    * Manually collapses the source explorer panel, restoring full canvas width.
    * Retains node selection highlight so the user can easily re-expand.
    */
@@ -299,10 +353,28 @@ export default function App() {
 
   /**
    * Retry loading source for currently selected node.
+   * If error is REPOSITORY_NOT_FOUND, triggers re-indexing to restore server snapshot.
    */
-  const handleRetrySource = useCallback(() => {
+  const handleRetrySource = useCallback(async () => {
+    const activeRoot = graphData?.rootPath || repoPath;
+    if (sourceState.error?.code === 'REPOSITORY_NOT_FOUND' && activeRoot) {
+      setSourceState({ isLoading: true, error: null, data: null });
+      try {
+        const scanRes = await fetch('/api/scan', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ rootPath: activeRoot }),
+        });
+        if (scanRes.ok) {
+          setSourceRetryCount((count) => count + 1);
+          return;
+        }
+      } catch {
+        // Fall through to retry count
+      }
+    }
     setSourceRetryCount((count) => count + 1);
-  }, []);
+  }, [sourceState.error, graphData?.rootPath, repoPath]);
 
   /**
    * Mouse drag handlers for resizing the source viewer panel.
@@ -447,8 +519,24 @@ export default function App() {
 
   // Find currently selected node object and incident edge counts
   const selectedNode = useMemo(() => {
-    if (!selectedNodeId || !Array.isArray(nodes)) return null;
-    return nodes.find((n) => n.id === selectedNodeId) || null;
+    if (!selectedNodeId) return null;
+    if (Array.isArray(nodes)) {
+      const found = nodes.find((n) => n.id === selectedNodeId);
+      if (found) return found;
+    }
+    // Fallback for indexed files without graph nodes
+    const fileName = selectedNodeId.split('/').pop() || selectedNodeId;
+    const extMatch = fileName.match(/\.[^.]+$/);
+    return {
+      id: selectedNodeId,
+      data: {
+        id: selectedNodeId,
+        path: selectedNodeId,
+        name: fileName,
+        extension: extMatch ? extMatch[0] : '',
+        language: 'text',
+      },
+    };
   }, [selectedNodeId, nodes]);
 
   const { incomingCount, outgoingCount } = useMemo(() => {
@@ -491,6 +579,8 @@ export default function App() {
             isScanning={isScanning}
             graphData={graphData}
             error={error}
+            selectedFilePath={selectedNodeId}
+            onSelectFile={handleSelectFile}
           />
         )}
 

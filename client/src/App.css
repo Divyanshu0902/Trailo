@@ -948,6 +948,14 @@
   overflow: auto;
   background-color: var(--bg-primary);
   padding: 0.5rem 0;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.viewer-code-container::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 .source-code-table {
@@ -1408,6 +1416,29 @@
   overflow-y: auto;
   overflow-x: hidden;
   padding: 0.85rem;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.sidebar-body::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.sidebar-body.sidebar-body-files {
+  padding: 0.65rem 0.35rem 0.65rem 0.5rem;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-body.sidebar-body-files .sidebar-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
 }
 
 .sidebar-section {
@@ -1872,4 +1903,191 @@
 
 .guide-desc {
   color: var(--text-muted);
+}
+
+/* --------------------------------------------------------------------------
+   Repository File Tree (Contextual Sidebar - Files category)
+   -------------------------------------------------------------------------- */
+.sidebar-file-tree-wrapper {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.sidebar-file-tree-wrapper::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.file-tree-container {
+  display: flex;
+  flex-direction: column;
+  user-select: none;
+  font-size: 0.8rem;
+  padding: 0.25rem 0.35rem 1rem;
+}
+
+.file-tree-root-header {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.5rem;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  margin-bottom: 0.35rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tree-root-icon {
+  color: var(--accent-color);
+  flex-shrink: 0;
+}
+
+.tree-root-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-tree-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.tree-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.tree-row {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  height: 26px;
+  min-height: 26px;
+  padding-right: 0.5rem;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  transition: background-color 0.1s ease, color 0.1s ease;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tree-row:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+}
+
+.tree-row:focus-visible {
+  outline: 1px solid var(--accent-color);
+  outline-offset: -1px;
+}
+
+.tree-file-row.selected {
+  background-color: rgba(88, 166, 255, 0.18);
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.tree-disclosure-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.tree-disclosure-spacer {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.tree-item-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  color: var(--accent-color);
+  flex-shrink: 0;
+}
+
+.tree-item-icon.file-icon {
+  color: var(--text-muted);
+}
+
+.tree-file-row.selected .tree-item-icon.file-icon {
+  color: var(--accent-color);
+}
+
+.tree-item-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.file-tree-empty {
+  padding: 1rem;
+  text-align: center;
+}
+
+/* --------------------------------------------------------------------------
+   Scrollbar Suppression (Left sidebar & Right source panel)
+   Preserves full mouse-wheel, touchpad, and keyboard navigation while
+   completely hiding ugly visual browser scrollbars.
+   -------------------------------------------------------------------------- */
+.shell-contextual-sidebar,
+.shell-contextual-sidebar *,
+.sidebar-body,
+.sidebar-body *,
+.sidebar-file-tree-wrapper,
+.sidebar-file-tree-wrapper *,
+.file-tree-container,
+.file-tree-container *,
+.source-viewer-panel,
+.source-viewer-panel *,
+.viewer-body,
+.viewer-body *,
+.viewer-code-container,
+.viewer-code-container * {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.shell-contextual-sidebar::-webkit-scrollbar,
+.shell-contextual-sidebar *::-webkit-scrollbar,
+.sidebar-body::-webkit-scrollbar,
+.sidebar-body *::-webkit-scrollbar,
+.sidebar-file-tree-wrapper::-webkit-scrollbar,
+.sidebar-file-tree-wrapper *::-webkit-scrollbar,
+.file-tree-container::-webkit-scrollbar,
+.file-tree-container *::-webkit-scrollbar,
+.source-viewer-panel::-webkit-scrollbar,
+.source-viewer-panel *::-webkit-scrollbar,
+.viewer-body::-webkit-scrollbar,
+.viewer-body *::-webkit-scrollbar,
+.viewer-code-container::-webkit-scrollbar,
+.viewer-code-container *::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
 }

@@ -1,9 +1,9 @@
 # Current Project State
 
-**Last updated:** Phase 4C UI Redesign Startup Screen & Scanner Sidebar (completed and verified)
-**Current phase:** Phase 4C — Interactive Graph and Source Explorer (Application Shell, Compact Header, Startup Screen with original logo2.png, and Contextual Sidebar Scanner complete; Step 3 File Tree pending review and authorization)
-**Verified commit:** fe875eb (working tree contains Startup Screen and Scanner Sidebar updates)
-**Branch:** uiModify
+**Last updated:** Phase 4C UI Redesign Step 3 & Scrollbar/Snapshot Self-Healing Fixes (completed and verified)
+**Current phase:** Phase 4C — Interactive Graph and Source Explorer (Application Shell, Compact Header, Startup Screen, Contextual Sidebar Scanner, Repository File Tree, and Scrollbar/Snapshot Fixes complete; Step 4 pending review and authorization)
+**Verified commit:** 4085612 (working tree contains Step 3 Repository File Tree and Bugfix updates)
+**Branch:** main
 
 ## Phase Roadmap Status
 
@@ -13,7 +13,7 @@
 | **Phase 1** | App skeleton | **Complete** (committed in `e410760`) |
 | **Phase 2** | Safe scanning | **Complete** (committed in `e410760`, 10/10 tests pass) |
 | **Phase 3** | Index and dependency extraction | **Complete** (committed in `20c0ecf`, 54/54 tests pass) |
-| **Phase 4** | Graph and source explorer | **In Progress** (Phase 4A, 4B, 4C Steps 1, 1.1, Startup Screen & Scanner Sidebar complete, 150/150 tests pass; Step 3 pending) |
+| **Phase 4** | Graph and source explorer | **In Progress** (Phase 4A, 4B, 4C Steps 1, 1.1, Startup Screen, Sidebar Scanner, File Tree, and Scrollbar/Snapshot Fixes complete, 173/173 tests pass; Step 4 pending) |
 | **Phase 5** | Q&A vertical slice | **Not Started** |
 | **Phase 6** | Citation validation and integration | **Not Started** |
 | **Phase 7** | Complete user journey | **Not Started** |
@@ -73,26 +73,29 @@
 - **VS Code-inspired application shell (Phase 4C UI Redesign Step 1 & Step 1.1 Refinements):** Implemented in `client/` and verified.
   - Top Application Bar (`client/src/components/AppTitleBar.jsx`): Compact 30px height, official product logo `assets/logo.png` (enlarged slightly to 20px x 20px for crisp visibility while keeping titlebar compact at 30px), 0.82rem brand title, repository folder name in clean white text separated from Trailo by ` | ` (deep blue pill and highlighting removed), and desktop window controls (minimize, fullscreen/maximize, close) in the top-right corner. Brand click returns to Welcome screen.
   - Activity Bar (`client/src/components/ActivityBar.jsx`): 48px wide persistent activity bar on the far left featuring categories: Scanner (`ScanIcon`), Files (`FilesIcon`), Internal dependencies (`InternalDepIcon`), External dependencies (`ExternalDepIcon`), and Unresolved dependencies (`UnresolvedDepIcon`), with dynamic badge counters and warning states. Scanner icon toggles/selects the contextual sidebar's Scanner category.
-  - Contextual Sidebar (`client/src/components/ContextualSidebar.jsx`): 280px sidebar beside activity bar with 30px header collapse button aligned with workspace tabs, hosting local repository scan form (`#sidebar-repo-input`, `Scan & Index` action, in-flight spinner, and structured error card) under "Scanner", active repository metadata summary when indexed, and truthful placeholders for Files, Internal, External, and Unresolved categories.
+  - Contextual Sidebar (`client/src/components/ContextualSidebar.jsx`): 280px sidebar beside activity bar with 30px header collapse button aligned with workspace tabs, hosting local repository scan form (`#sidebar-repo-input`, `Scan & Index` action, in-flight spinner, and structured error card) under "Scanner", hierarchical repository file tree (`FileTree.jsx`) under "Files", active repository metadata summary when indexed, and truthful placeholders for Internal, External, and Unresolved categories.
   - Compact Workspace Tab Bar (`client/src/components/WorkspaceTabBar.jsx`): Compact 30px height with clean navigation tab (`Dependency Graph` when repository is active; empty when no repository is open), plus primary sidebar toggle (`SidebarIcon`) and source inspector toggle (`SourceIcon`). Contains zero "Welcome" or "Scanner" tabs.
   - Main Workspace Area (`client/src/components/GraphCanvas.jsx`, `client/src/components/SourceViewer.jsx`, `client/src/components/StartupScreen.jsx`): Renders the Startup Screen when no repository is loaded (`!graphData`), and transitions automatically to the full graph canvas upon successful scan with the source viewer collapsed by default.
-  - Consistent SVG Icon System (`client/src/components/Icons.jsx`): Developer icon system with uniform 24x24 viewBox, stroke-width 1.75, fill none, stroke currentColor, including `MinimizeIcon` and `MaximizeIcon`.
+  - Consistent SVG Icon System (`client/src/components/Icons.jsx`): Developer icon system with uniform 24x24 viewBox, stroke-width 1.75, fill none, stroke currentColor, including `MinimizeIcon`, `MaximizeIcon`, `ChevronDownIcon`, `FileIcon`, and `FolderOpenIcon`.
   - Shell Navigation State (`client/src/utils/graphSelection.js`): Pure deterministic helper `transitionActivityBarState` handles category switching, collapse/expand toggle on repeated clicks, and sidebar state persistence.
-- **Startup Screen & Scanner Sidebar (Phase 4C UI Redesign):** Implemented in `client/` and verified.
-  - Startup Screen (`client/src/components/StartupScreen.jsx`): Empty state rendered in main content area when no repository has been loaded. Displays `assets/logo2.png` prominently in center in its original black shade without filters, recoloring, or inversion. Strictly excludes "Trailo" headings, taglines, cards, borders, duplicate inputs, or fake metrics.
-  - Subdued 4-Item Guidance List: Small, subtle, non-clickable informational capability list beneath logo: Scanner (Scans and indexes a repository), Dependency Graph (Visualizes dependencies between files), Cluster View (Groups related code into visual clusters), and Ask Trailo (Get code-grounded answers from AI).
-  - Contextual Sidebar Scanner: Scanning form resides exclusively in `ContextualSidebar.jsx`. On scan start, shows progress in sidebar while main content remains in current view; on success, main area transitions to dependency graph with source viewer collapsed by default; on failure, main area retains startup screen and error message is displayed in the sidebar.
-  - Zero "Welcome" or "Scanner" Workspaces/Tabs: No workspaces, tabs, or routes named "Welcome" or "Scanner" exist anywhere in the application.
-  - Truthful Recent Repositories Policy: Trailo operates with an in-memory single-snapshot index store and does not persist repository paths across sessions; recent repositories list is honestly omitted without fabrication.
-- **Automated test suite:** 150/150 tests passing cleanly across 38 suites with Node.js built-in runner (`node --test`), covering health endpoint, repository scanner, line chunker, JS/TS analyzer, path resolver, index store, end-to-end repository indexing, graph builder, graph routes, scan routes, secure file content routes, graph selection engine, source loader cache/race protection, browser fetch invocation receiver bindings, line splitting and newline preservation, Prism grammar resolution and tokenization, resizer panel width clamping, graph layout state synchronization, collapsible source explorer state transitions, application shell navigation transitions, and Startup Screen / Scanner Sidebar contract specifications.
-- **Client production build:** Verified `vite build` cleanly emitting production assets into `client/dist/` in 1.84s (`logo2.png` bundled at 69.38 kB).
+- **Repository File Tree Navigation (Phase 4C UI Redesign Step 3):** Implemented in `client/` and verified.
+  - Hierarchical Tree Builder (`client/src/utils/fileTree.js`): Pure deterministic utility (`buildFileTree`, `getAncestorDirPaths`, `compareTreeNodes`) constructing nested directory trees from indexed repository file metadata. Orders directories before files at every level, sorts names alphabetically case-insensitively while preserving original display casing, and normalizes paths to POSIX format.
+  - Interactive File Tree Component (`client/src/components/FileTree.jsx`): Embedded in `ContextualSidebar.jsx` under the `Files` category. Supports expanding and collapsing directories with clear disclosure chevrons, auto-expands ancestor directories when a file is selected (from canvas or sidebar), resets directory expansion on repository switch, provides accessible roles (`role="tree"`, `role="treeitem"`, `aria-expanded`, `aria-selected`), and handles keyboard interaction (`Enter` / `Space`).
+  - Graph Selection & Source Viewer Synchronization: Selecting a file in the tree updates `selectedNodeId` and automatically opens/updates the source explorer panel. If the file has a corresponding graph node, it highlights the node and its incident edges on canvas; if the file is isolated or lacks a graph node, it clears graph highlights without errors while still retrieving and displaying source code through the existing source API. Clicking graph nodes synchronizes with the file tree highlight bidirectionally.
+  - Truthful Empty State: Displays a clean "No repository indexed yet." empty state in the Files category when no repository has been loaded into memory.
+- **Scrollbar Suppression & In-Memory Snapshot Self-Healing (Bugfix):** Implemented in `client/` and verified.
+  - Scrollbar Suppression (`client/src/App.css`): Completely hides visual scrollbars across `.shell-contextual-sidebar`, `.sidebar-body`, `.sidebar-file-tree-wrapper`, `.file-tree-container`, `.source-viewer-panel`, `.viewer-body`, and `.viewer-code-container` using standard `scrollbar-width: none`, `-ms-overflow-style: none`, and `::-webkit-scrollbar { display: none !important; }`, while strictly preserving 100% normal mouse scroll wheel, trackpad, and keyboard scrolling functionality.
+  - File Tree Sidebar Layout (`client/src/components/ContextualSidebar.jsx`, `client/src/App.css`): Added `.sidebar-body-files` modifier class providing unified single-container scrolling for the file tree, eliminating nested scroll boundaries.
+  - REPOSITORY_NOT_FOUND Auto-Recovery (`client/src/App.jsx`, `client/src/components/SourceViewer.jsx`): When the in-memory repository snapshot is missing on the server (e.g. after a dev-server process restart while the client remains open), the frontend automatically detects the `REPOSITORY_NOT_FOUND` error and transparently triggers background re-indexing using the active `graphData.rootPath` / `repoPath`, seamlessly loading the requested file without user error. In addition, `SourceViewer` provides an honest explanation and a direct "Re-index & Load Source" action button if manual recovery is triggered.
+- **Automated test suite:** 173/173 tests passing cleanly across 46 suites with Node.js built-in runner (`node --test`), covering health endpoint, repository scanner, line chunker, JS/TS analyzer, path resolver, index store, end-to-end repository indexing, graph builder, graph routes, scan routes, secure file content routes, graph selection engine, source loader cache/race protection, browser fetch invocation receiver bindings, line splitting and newline preservation, Prism grammar resolution and tokenization, resizer panel width clamping, graph layout state synchronization, collapsible source explorer state transitions, application shell navigation transitions, Startup Screen / Scanner Sidebar contracts, repository file tree navigation contracts, and scrollbar suppression / snapshot recovery contracts.
+- **Client production build:** Verified `vite build` cleanly emitting production assets into `client/dist/` in 2.40s.
 - **Git & Whitespace:** `git diff --check` reports 0 errors.
 
 ## Open Items & Next Intended Task
 
-- **Current Increment Status:** Phase 4C UI Redesign — Startup Screen and Scanner Sidebar (completed, tested, and verified; awaiting developer review and approval).
-- **Next Phase / Increment:** Phase 4C UI Redesign Step 3 — Repository File Tree Navigation (interactive file tree in the contextual sidebar for the Files category).
-- **Execution rule:** Step 3 and subsequent steps remain **not started**. Implementation will begin only upon explicit user authorization.
+- **Current Increment Status:** Phase 4C UI Redesign Step 3 — Repository File Tree Navigation (completed, tested, and verified; awaiting developer review and approval).
+- **Next Phase / Increment:** Phase 4C UI Redesign Step 4 — Internal Dependencies Inspector (inspecting resolved internal edges in the contextual sidebar).
+- **Execution rule:** Step 4 and subsequent steps remain **not started**. Implementation will begin only upon explicit user authorization.
 
 ## Update Rule
 
