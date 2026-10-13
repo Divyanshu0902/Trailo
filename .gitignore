@@ -4,6 +4,4 @@ dist/
 .env.local
 .env.*.local
 
-log.md
-prompt_&_response_log.md
 log/

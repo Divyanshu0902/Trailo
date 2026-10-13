@@ -17,8 +17,10 @@ A phase is complete only when its acceptance criteria are demonstrated. Agent co
 - Acceptance: positive and negative fixture tests, traversal attempts, limits, and unreadable-file handling.
 
 ## Phase 3 — Index and dependency extraction
-- Create file records, line-aware chunks, basic symbols, and static import relationships.
-- Acceptance: deterministic fixture output; correct line ranges; unresolved/external dependencies represented honestly.
+- Implement in-memory index store and deterministic, line-aware source chunking (strictly decoupled from AST parsing).
+- Implement minimal language analyzer interface and initial JS/TS analyzer using the TypeScript Compiler API for syntax-aware dependency extraction.
+- Resolve detected dependencies against indexed repository files into normalized, language-neutral records.
+- Acceptance: deterministic fixture output; correct 1-based line ranges; normalized dependency records with honest resolution states (resolved, external, unresolved).
 
 ## Phase 4 — Graph and source explorer
 - Build interactive graph, search/filter, selection, neighbors, and source preview.

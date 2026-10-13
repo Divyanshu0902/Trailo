@@ -47,9 +47,18 @@ Trailo combines visual exploration and evidence-grounded explanations. It is a r
 - AI answers are only as reliable as retrieval and available source evidence; the product must expose uncertainty.
 - “Local-first” does not mean all model inference is local when a cloud model is selected. Disclose what source excerpts are sent to the configured provider.
 
-## Initial language scope
+## Language scope and architectural tiers
 
-Prioritize JavaScript/TypeScript. Add lightweight Python and Java support only where it fits the phase plan and can be tested honestly. Do not claim comprehensive language support from extension recognition alone.
+Trailo adopts a **language-agnostic core with a JavaScript/TypeScript-first structural analyzer**:
+
+1. **Shared language-agnostic core:**
+   - File scanning, metadata indexing, in-memory content storage, and line-aware source chunking operate uniformly on text files regardless of language.
+   - Keyword-, path-, and identifier-based retrieval and Gemma-powered Q&A with citation validation do not require language-specific ASTs.
+2. **JavaScript/TypeScript structural analysis (MVP):**
+   - The initial MVP delivers syntax-aware dependency extraction and graph exploration specifically for JavaScript and TypeScript (`.js`, `.jsx`, `.ts`, `.tsx`, `.mjs`, `.cjs`) using the TypeScript Compiler API.
+3. **Other languages (Post-MVP):**
+   - Other languages may be scanned and indexed as text if enabled, but will not receive equivalent syntax-aware dependency graphs during the hackathon MVP.
+   - We do not claim universal codebase understanding merely because the shared core is language-neutral. Additional language analyzers (e.g. Python, Java, Go) remain future possibilities behind a small analyzer interface.
 
 ## Out of scope for the initial MVP
 

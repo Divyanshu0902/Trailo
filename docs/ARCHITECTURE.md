@@ -15,32 +15,38 @@ No desktop wrapper and no model weights bundled in the MVP.
 
 ## Logical components
 
-### Frontend
-Owns repository selection UX, indexing progress, overview, graph interaction, source inspection, question submission, answer display, and navigation between citations and graph nodes. It must not independently read arbitrary local filesystem paths.
+### 1. Shared Language-Agnostic Core
+The core application handles repository exploration, indexing, retrieval, and Q&A without depending on language-specific AST structures:
 
-### API layer
-Validates requests, manages repository registration and status, invokes application services, and returns stable response shapes. It should not contain scanning, retrieval, or model-prompt logic directly.
+- **Frontend:** Owns repository selection UX, indexing progress, overview, graph interaction, source inspection, question submission, answer display, and navigation between citations and graph nodes. Never directly reads arbitrary local filesystem paths.
+- **API layer:** Validates requests, manages repository registration and status, orchestrates services, and returns stable response shapes. Does not contain raw scanning, parsing, or prompt logic.
+- **Repository scanner:** Discovers candidate files beneath an approved root, enforces ignore rules and safety bounds, skips unsafe/binary content, and returns normalized relative paths and metadata. Never executes repository code.
+- **Line-aware chunker:** Creates deterministic, line-based text chunks with stable chunk IDs and 1-based line ranges directly from source text. Completely decoupled from language ASTs.
+- **Index store:** Owns in-memory repository snapshots, indexing state, file records, line chunks, and normalized dependency records.
+- **Graph service:** Constructs graph nodes and edges from normalized, language-neutral dependency records, distinguishing resolved, external, and unresolved relationships.
+- **Retrieval and context builder:** Ranks relevant text chunks using path, identifier, and keyword signals within a bounded token budget.
+- **Model provider adapter:** Wraps Ollama API communication, timeout/error handling, and response normalization behind an interface.
+- **Answer and citation validation:** Builds prompts treating repository text as untrusted evidence, parses model responses, validates citations against the active snapshot, and rejects invalid references.
 
-### Repository scanner
-Discovers candidate files beneath an approved root, applies ignore and resource limits, skips unsafe/unreadable content, and returns normalized relative paths and metadata. It never executes repository code.
+### 2. Language Analyzer Interface
+A minimal conceptual boundary separating the shared core from language-specific structural analysis:
+- Receives source-file information (`path`, `content`, `language`) from the scanned repository.
+- Emits structured, normalized dependency records and file-level symbols.
+- Keeps language-specific AST objects internal to the analyzer; no parser-specific node types leak into the core.
+- Kept intentionally minimal for the MVP—a direct module interface without a complex dynamic plugin system.
 
-### Indexer and parsers
-Reads eligible source files, creates indexed file records and chunks, extracts best-effort symbols and static dependency relationships, and tracks warnings or unresolved references.
+### 3. JavaScript/TypeScript Analyzer (TypeScript Compiler API)
+The first syntax-aware analyzer, targeted for Phase 3:
+- Uses the TypeScript Compiler API (`typescript`) as a parser and syntax analysis tool.
+- Parses JS/TS source into a syntax tree to detect ES module `import`/`export` and CommonJS `require()` declarations.
+- Captures original module specifiers, dependency kinds, and source line locations.
+- Emits normalized dependency records.
+- Does not perform full type-checking, project compilation, or whole-program construction for the MVP.
+- **Separation of resolution:** Parsing extracts declarations; resolution against repository files is handled separately against indexed snapshot paths.
 
-### Index store
-Owns in-memory repository snapshots, indexing state, and lookup by repository/file identifiers. Its interface should permit a future persistent implementation without requiring it now.
-
-### Graph service
-Builds graph nodes and edges from indexed file/dependency records. Graph relationships must identify their evidence and resolution status where applicable.
-
-### Retrieval and context builder
-Ranks relevant chunks using path, identifier, and keyword signals. Applies bounded context budgets and returns evidence records with source paths and line ranges.
-
-### Model provider
-Wraps Ollama API communication, timeout/error handling, and response normalization. Provider-specific behavior stays behind an interface.
-
-### Answer and citation validation
-Builds prompts that treat repository text as untrusted evidence, parses model output, validates citations against the current indexed snapshot, and reports unsupported claims or invalid references.
+### 4. Future Language Analyzers (Post-MVP)
+- Additional analyzers (e.g. Python, Java, Go) can implement the analyzer interface in future milestones.
+- Shared parsing infrastructure such as Tree-sitter may be evaluated if multiple languages justify it, but is strictly out of scope for the hackathon MVP.
 
 ## Main data flows
 
@@ -62,6 +68,9 @@ UI graph request → graph service over indexed dependency records → graph pay
 - Retrieval does not call the model directly; it returns evidence to the answer service.
 - Citation validation does not trust model-generated paths or line numbers.
 - Repository contents are data, never executable instructions for the agent or application.
+- Shared core does not depend on language-specific AST structures or syntax.
+- Source chunking is line-aware and strictly decoupled from language ASTs.
+- Syntax-aware dependency extraction is decoupled from repository file resolution.
 
 ## Failure handling
 

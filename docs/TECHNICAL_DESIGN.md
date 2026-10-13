@@ -24,7 +24,7 @@
 
 These endpoints are proposals until each is reviewed and implemented. Do not implement all endpoints in a single task.
 
-## Conceptual records
+## Conceptual records and contracts
 
 ### Repository
 - stable repository ID
@@ -35,33 +35,59 @@ These endpoints are proposals until each is reviewed and implemented. Do not imp
 
 ### Indexed file
 - stable file ID
-- normalized relative path
+- normalized relative path (POSIX forward slashes)
 - detected language
 - file size and content hash
 - indexed text or bounded content representation
 - extraction status/warnings
 - recognized symbols and dependency references
 
-### Dependency edge
-- source file ID
-- target file ID when resolved
-- original import/reference specifier
-- relationship type
-- resolution status
-- source location when available
+### Language Analyzer Contract
+A lightweight, language-neutral interface between the shared core and specific syntax analyzers:
+- **Input:** `{ path: string, content: string, language: string }`
+- **Output:** `{ dependencies: NormalizedDependency[], symbols: SymbolRecord[], diagnostics: string[] }`
+- **Contract:** Pure analysis without filesystem I/O; keeps AST objects strictly internal; does not perform repository file resolution.
 
-### Evidence chunk
+### Normalized Dependency Record (Language-Neutral)
+A language-neutral structure representing dependencies for graph generation and Q&A evidence:
+```json
+{
+  "sourcePath": "src/server.js",
+  "targetPath": "src/utils.js",
+  "specifier": "./utils",
+  "kind": "import",
+  "language": "javascript",
+  "resolutionStatus": "resolved",
+  "sourceLocation": {
+    "startLine": 1,
+    "endLine": 1
+  }
+}
+```
+- **sourcePath:** Normalized repository-relative path of the importing file.
+- **targetPath:** Normalized repository-relative path of the target file (populated only when resolved against indexed repository files; `null` otherwise).
+- **specifier:** The raw module or package specifier as declared in source code (e.g., `'./utils'`, `'express'`).
+- **kind:** Categorical dependency kind (e.g., `'import'`, `'re-export'`, `'require'`).
+- **language:** Source language of the importing file (e.g., `'javascript'`, `'typescript'`).
+- **resolutionStatus:** State of the link: `'resolved'` (internal file match), `'external'` (third-party package/built-in), or `'unresolved'` (internal path not found).
+- **sourceLocation:** 1-based start and end line where the dependency is declared.
+- **AST decoupling:** No parser-specific nodes or AST references are stored in this record.
+
+### Source Chunk (Independent of AST)
+Line-aware text chunks created by a deterministic, line-based chunker:
+- stable chunk ID (e.g. `${fileId}:L${startLine}-L${endLine}`)
 - repository/snapshot ID
 - file ID and relative path
-- start/end line
-- text
-- retrieval score and reasons
+- startLine and endLine (1-based, inclusive)
+- chunk text
+- retrieval score and ranking metadata (populated during query retrieval)
+- **Design rule:** Chunking operates on text lines and is strictly decoupled from language ASTs.
 
-### Answer citation
-- evidence/file ID
+### Answer Citation
+- evidence/chunk ID
 - normalized path
-- inclusive line range
-- citation validation result
+- inclusive line range (`startLine`, `endLine`)
+- citation validation result (verified against active in-memory snapshot)
 
 ## Security invariants
 
