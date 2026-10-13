@@ -1,8 +1,8 @@
 # Current Project State
 
-**Last updated:** Phase 4A Backend Graph API (Completed and verified)
-**Current phase:** Phase 4A — Backend Graph API (Completed and verified; awaiting authorization for Phase 4B)
-**Verified commit:** 20c0ecf (working tree contains uncommitted Phase 4A changes)
+**Last updated:** Phase 4B UI Interaction Specification (Focused Revision completed and under review)
+**Current phase:** Phase 4B — UI Interaction Specification (Revised specification in `docs/UI_INTERACTION_SPEC.md`; awaiting review and approval before Phase 4C)
+**Verified commit:** 290a361 (feat: add dependency graph API; working tree contains uncommitted Phase 4B documentation)
 **Branch:** main
 
 ## Phase Roadmap Status
@@ -13,7 +13,7 @@
 | **Phase 1** | App skeleton | **Complete** (committed in `e410760`) |
 | **Phase 2** | Safe scanning | **Complete** (committed in `e410760`, 10/10 tests pass) |
 | **Phase 3** | Index and dependency extraction | **Complete** (committed in `20c0ecf`, 54/54 tests pass) |
-| **Phase 4** | Graph and source explorer | **In Progress** (Phase 4A complete; 61/61 tests pass; Phase 4B pending authorization) |
+| **Phase 4** | Graph and source explorer | **In Progress** (Phase 4A complete, 61/61 tests pass; Phase 4B spec drafted; Phase 4C pending approval) |
 | **Phase 5** | Q&A vertical slice | **Not Started** |
 | **Phase 6** | Citation validation and integration | **Not Started** |
 | **Phase 7** | Complete user journey | **Not Started** |
@@ -50,15 +50,17 @@
   - `buildDependencyGraph(snapshot)`: Generates validated node records (`id`, `path`, `name`, `language`, `lineCount`, `size`, `extension`), directed dependency edges (`source` -> `target`), separate `unresolved` and `external` dependency arrays without creating external nodes, deduplicating identical edges, and computing graph summary metrics (`totalNodes`, `totalEdges`, `resolvedCount`, `unresolvedCount`, `externalCount`).
   - Graph API routes: `GET /api/repositories/:id/graph` (supporting snapshot ID or `'current'`) and `GET /api/graph` returning the current active snapshot graph.
   - Structured 404 error responses for unindexed snapshots or missing IDs (`{ error: { code: 'REPOSITORY_NOT_FOUND', message: '...' } }`).
+- **UI interaction specification (Phase 4B):** Documented in `docs/UI_INTERACTION_SPEC.md` (Focused Revision).
+  - Formally specifies dual workspaces (Explore, Ask Trailo), 3-panel split layouts with flexible laptop-friendly sizing, core MVP vs. optional/deferred features, truthful empty states, citation validation UX, and minimal Phase 4C backend prerequisites.
 - **Automated test suite:** 61/61 tests passing cleanly across 18 suites with Node.js built-in runner (`node --test`), covering health endpoint, repository scanner, line chunker, JS/TS analyzer, path resolver, index store, end-to-end repository indexing, graph builder unit tests, and graph route integration tests.
 - **Client production build:** Verified `vite build` cleanly emitting production assets into `client/dist/`.
 - **Git & Whitespace:** `git diff --check` reports 0 errors.
 
 ## Open Items & Next Intended Task
 
-- **Next Phase / Increment:** Phase 4B — UI Interaction Specification (define and approve UI layout, interactions, selection states, search/filter contracts, and source preview before implementation).
-- **Follow-up Increment:** Phase 4C — Interactive Graph and Source Explorer (frontend graph visualization, search/filter, selection, and source preview implementation).
-- **Execution rule:** Phase 4B remains **not started**. Implementation will begin only upon explicit user authorization.
+- **Current Increment Status:** Phase 4B — UI Interaction Specification (completed and documented in `docs/UI_INTERACTION_SPEC.md`; awaiting developer review and approval).
+- **Next Phase / Increment:** Phase 4C — Interactive Graph and Source Explorer (frontend graph visualization, search/filter, selection, and source preview implementation).
+- **Execution rule:** Phase 4C remains **not started**. Implementation will begin only upon explicit user authorization after review of the Phase 4B specification.
 
 ## Update Rule
 
