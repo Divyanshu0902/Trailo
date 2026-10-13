@@ -1,8 +1,8 @@
 # Current Project State
 
-**Last updated:** Phase 4C UI Redesign Step 1.1 Navbar Refinement (completed and verified)
-**Current phase:** Phase 4C — Interactive Graph and Source Explorer (Application Shell & Refined Top Navbars complete; Step 2 Welcome Screen pending review and authorization)
-**Verified commit:** fe875eb (feat: add activity bar on left; working tree contains Step 1.1 Navbar Refinements)
+**Last updated:** Phase 4C UI Redesign Startup Screen & Scanner Sidebar (completed and verified)
+**Current phase:** Phase 4C — Interactive Graph and Source Explorer (Application Shell, Compact Header, Startup Screen with original logo2.png, and Contextual Sidebar Scanner complete; Step 3 File Tree pending review and authorization)
+**Verified commit:** fe875eb (working tree contains Startup Screen and Scanner Sidebar updates)
 **Branch:** uiModify
 
 ## Phase Roadmap Status
@@ -13,7 +13,7 @@
 | **Phase 1** | App skeleton | **Complete** (committed in `e410760`) |
 | **Phase 2** | Safe scanning | **Complete** (committed in `e410760`, 10/10 tests pass) |
 | **Phase 3** | Index and dependency extraction | **Complete** (committed in `20c0ecf`, 54/54 tests pass) |
-| **Phase 4** | Graph and source explorer | **In Progress** (Phase 4A, 4B, 4C Steps 1, 2B, 2C complete, 100/100 tests pass; Step 3 pending) |
+| **Phase 4** | Graph and source explorer | **In Progress** (Phase 4A, 4B, 4C Steps 1, 1.1, Startup Screen & Scanner Sidebar complete, 150/150 tests pass; Step 3 pending) |
 | **Phase 5** | Q&A vertical slice | **Not Started** |
 | **Phase 6** | Citation validation and integration | **Not Started** |
 | **Phase 7** | Complete user journey | **Not Started** |
@@ -71,22 +71,28 @@
   - Safe syntax highlighting (`prismjs@^1.30.0`): Syntax tokenization mapped to pure React `<span>` elements with unique keys and zero `dangerouslySetInnerHTML`, supporting JS, TS, JSX, TSX, JSON, CSS, and Markdown with dark theme token colors and plain-text fallback.
   - Collapsible source explorer: Explorer panel is collapsed by default after scanning, granting full viewport width to the dependency graph. Automatically expands on node selection, updates when clicking other nodes without closing, supports manual collapse via `›` control or deselection via `✕`, reopens when clicking a node again on canvas or via the docked `‹ Source` tab, and preserves custom resized panel width (`320px` to `850px`).
 - **VS Code-inspired application shell (Phase 4C UI Redesign Step 1 & Step 1.1 Refinements):** Implemented in `client/` and verified.
-  - Top Application Bar (`client/src/components/AppTitleBar.jsx`): Compact 30px height, official product logo `assets/logo.png` (enlarged slightly to 20px x 20px for crisp visibility while keeping titlebar compact at 30px), 0.82rem brand title, repository folder name in clean white text separated from Trailo by ` | ` (deep blue pill and highlighting removed), and desktop window controls (minimize, fullscreen/maximize, close) in the top-right corner.
-  - Activity Bar (`client/src/components/ActivityBar.jsx`): 48px wide persistent activity bar on the far left featuring categories: Scanner (`ScanIcon`), Files (`FilesIcon`), Internal dependencies (`InternalDepIcon`), External dependencies (`ExternalDepIcon`), and Unresolved dependencies (`UnresolvedDepIcon`), with dynamic badge counters and warning states.
-  - Contextual Sidebar (`client/src/components/ContextualSidebar.jsx`): 280px sidebar beside activity bar with 30px header collapse button aligned with workspace tabs, hosting repository scan form under "Scanner", and truthful placeholders for Files, Internal, External, and Unresolved categories.
-  - Compact Workspace Tab Bar (`client/src/components/WorkspaceTabBar.jsx`): Compact 30px height, retaining active `Dependency Graph` tab with 13px icon on the left, and hosting the relocated left primary sidebar toggle (`SidebarIcon`) and right source inspector toggle (`SourceIcon`) in the right corner.
-  - Main Workspace Area (`client/src/components/GraphCanvas.jsx`, `client/src/components/SourceViewer.jsx`): Retains full graph canvas, collapsible and resizable source viewer (320px–850px), syntax highlighting, and graph selection highlights.
+  - Top Application Bar (`client/src/components/AppTitleBar.jsx`): Compact 30px height, official product logo `assets/logo.png` (enlarged slightly to 20px x 20px for crisp visibility while keeping titlebar compact at 30px), 0.82rem brand title, repository folder name in clean white text separated from Trailo by ` | ` (deep blue pill and highlighting removed), and desktop window controls (minimize, fullscreen/maximize, close) in the top-right corner. Brand click returns to Welcome screen.
+  - Activity Bar (`client/src/components/ActivityBar.jsx`): 48px wide persistent activity bar on the far left featuring categories: Scanner (`ScanIcon`), Files (`FilesIcon`), Internal dependencies (`InternalDepIcon`), External dependencies (`ExternalDepIcon`), and Unresolved dependencies (`UnresolvedDepIcon`), with dynamic badge counters and warning states. Scanner icon toggles/selects the contextual sidebar's Scanner category.
+  - Contextual Sidebar (`client/src/components/ContextualSidebar.jsx`): 280px sidebar beside activity bar with 30px header collapse button aligned with workspace tabs, hosting local repository scan form (`#sidebar-repo-input`, `Scan & Index` action, in-flight spinner, and structured error card) under "Scanner", active repository metadata summary when indexed, and truthful placeholders for Files, Internal, External, and Unresolved categories.
+  - Compact Workspace Tab Bar (`client/src/components/WorkspaceTabBar.jsx`): Compact 30px height with clean navigation tab (`Dependency Graph` when repository is active; empty when no repository is open), plus primary sidebar toggle (`SidebarIcon`) and source inspector toggle (`SourceIcon`). Contains zero "Welcome" or "Scanner" tabs.
+  - Main Workspace Area (`client/src/components/GraphCanvas.jsx`, `client/src/components/SourceViewer.jsx`, `client/src/components/StartupScreen.jsx`): Renders the Startup Screen when no repository is loaded (`!graphData`), and transitions automatically to the full graph canvas upon successful scan with the source viewer collapsed by default.
   - Consistent SVG Icon System (`client/src/components/Icons.jsx`): Developer icon system with uniform 24x24 viewBox, stroke-width 1.75, fill none, stroke currentColor, including `MinimizeIcon` and `MaximizeIcon`.
   - Shell Navigation State (`client/src/utils/graphSelection.js`): Pure deterministic helper `transitionActivityBarState` handles category switching, collapse/expand toggle on repeated clicks, and sidebar state persistence.
-- **Automated test suite:** 133/133 tests passing cleanly across 31 suites with Node.js built-in runner (`node --test`), covering health endpoint, repository scanner, line chunker, JS/TS analyzer, path resolver, index store, end-to-end repository indexing, graph builder, graph routes, scan routes, secure file content routes, graph selection engine, source loader cache/race protection, browser fetch invocation receiver bindings, line splitting and newline preservation, Prism grammar resolution and tokenization, resizer panel width clamping, graph layout state synchronization, collapsible source explorer state transitions, and application shell navigation transitions.
-- **Client production build:** Verified `vite build` cleanly emitting production assets into `client/dist/` in 2.11s.
+- **Startup Screen & Scanner Sidebar (Phase 4C UI Redesign):** Implemented in `client/` and verified.
+  - Startup Screen (`client/src/components/StartupScreen.jsx`): Empty state rendered in main content area when no repository has been loaded. Displays `assets/logo2.png` prominently in center in its original black shade without filters, recoloring, or inversion. Strictly excludes "Trailo" headings, taglines, cards, borders, duplicate inputs, or fake metrics.
+  - Subdued 4-Item Guidance List: Small, subtle, non-clickable informational capability list beneath logo: Scanner (Scans and indexes a repository), Dependency Graph (Visualizes dependencies between files), Cluster View (Groups related code into visual clusters), and Ask Trailo (Get code-grounded answers from AI).
+  - Contextual Sidebar Scanner: Scanning form resides exclusively in `ContextualSidebar.jsx`. On scan start, shows progress in sidebar while main content remains in current view; on success, main area transitions to dependency graph with source viewer collapsed by default; on failure, main area retains startup screen and error message is displayed in the sidebar.
+  - Zero "Welcome" or "Scanner" Workspaces/Tabs: No workspaces, tabs, or routes named "Welcome" or "Scanner" exist anywhere in the application.
+  - Truthful Recent Repositories Policy: Trailo operates with an in-memory single-snapshot index store and does not persist repository paths across sessions; recent repositories list is honestly omitted without fabrication.
+- **Automated test suite:** 150/150 tests passing cleanly across 38 suites with Node.js built-in runner (`node --test`), covering health endpoint, repository scanner, line chunker, JS/TS analyzer, path resolver, index store, end-to-end repository indexing, graph builder, graph routes, scan routes, secure file content routes, graph selection engine, source loader cache/race protection, browser fetch invocation receiver bindings, line splitting and newline preservation, Prism grammar resolution and tokenization, resizer panel width clamping, graph layout state synchronization, collapsible source explorer state transitions, application shell navigation transitions, and Startup Screen / Scanner Sidebar contract specifications.
+- **Client production build:** Verified `vite build` cleanly emitting production assets into `client/dist/` in 1.84s (`logo2.png` bundled at 69.38 kB).
 - **Git & Whitespace:** `git diff --check` reports 0 errors.
 
 ## Open Items & Next Intended Task
 
-- **Current Increment Status:** Phase 4C UI Redesign Step 1.1 — Navbar Refinement (completed, tested, and verified; awaiting developer review and approval).
-- **Next Phase / Increment:** Phase 4C UI Redesign Step 2 — Welcome Screen (introducing `assets/logo2.png`, zero-state guided onboarding, quick recent repos, and empty-state layout).
-- **Execution rule:** Step 2 and subsequent steps remain **not started**. Implementation will begin only upon explicit user authorization.
+- **Current Increment Status:** Phase 4C UI Redesign — Startup Screen and Scanner Sidebar (completed, tested, and verified; awaiting developer review and approval).
+- **Next Phase / Increment:** Phase 4C UI Redesign Step 3 — Repository File Tree Navigation (interactive file tree in the contextual sidebar for the Files category).
+- **Execution rule:** Step 3 and subsequent steps remain **not started**. Implementation will begin only upon explicit user authorization.
 
 ## Update Rule
 

@@ -306,4 +306,3 @@ export function MaximizeIcon({ size = 14, strokeWidth = 1.75, className = '', ..
     </svg>
   );
 }
-

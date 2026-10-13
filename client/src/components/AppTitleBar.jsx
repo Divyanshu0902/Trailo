@@ -41,23 +41,18 @@ export function AppTitleBar({
   return (
     <header className="shell-titlebar">
       <div className="titlebar-left">
-        <div className="titlebar-brand" title="Trailo — Codebase Understanding">
+        <div className="titlebar-brand" title="Trailo">
           <img src={logoImg} alt="Trailo Logo" className="titlebar-logo-img" />
           <span className="titlebar-brand-name">Trailo</span>
         </div>
 
-        {repoName ? (
+        {repoName && (
           <>
             <span className="titlebar-divider" aria-hidden="true">|</span>
             <div className="titlebar-repo-item" title={repoPath}>
               <FolderIcon size={13} className="titlebar-repo-icon" />
               <span className="titlebar-repo-name">{repoName}</span>
             </div>
-          </>
-        ) : (
-          <>
-            <span className="titlebar-divider" aria-hidden="true">|</span>
-            <span className="titlebar-empty-tag">No folder opened</span>
           </>
         )}
       </div>
@@ -98,4 +93,3 @@ export function AppTitleBar({
     </header>
   );
 }
-

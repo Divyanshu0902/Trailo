@@ -7,6 +7,7 @@ import { WorkspaceTabBar } from './components/WorkspaceTabBar.jsx';
 import { AppStatusBar } from './components/AppStatusBar.jsx';
 import { GraphCanvas } from './components/GraphCanvas.jsx';
 import { SourceViewer } from './components/SourceViewer.jsx';
+import { StartupScreen } from './components/StartupScreen.jsx';
 import { computeGraphLayout } from './utils/layout.js';
 import {
   computeSelectionHighlights,
@@ -198,7 +199,7 @@ export default function App() {
           loadGraphFromPayload(payload);
         }
       } catch {
-        // Active graph unavailable; stays in empty startup state
+        // Active graph unavailable; startup screen remains
       }
     }
 
@@ -399,12 +400,6 @@ export default function App() {
       const payload = await graphRes.json();
       loadGraphFromPayload(payload);
     } catch (err) {
-      setGraphData(null);
-      setNodes([]);
-      setEdges([]);
-      setSelectedNodeId(null);
-      setIsSourceOpen(false);
-      setSourceState({ isLoading: false, error: null, data: null });
       setError({
         code: err.code || 'SCAN_ERROR',
         message: err.message || 'An error occurred during repository scanning.',
@@ -501,71 +496,76 @@ export default function App() {
 
         <div className="shell-main-workspace">
           <WorkspaceTabBar
+            hasRepository={Boolean(graphData)}
             isSidebarOpen={isSidebarOpen}
             onToggleSidebar={() => setIsSidebarOpen((open) => !open)}
             isSourceOpen={isSourceOpen}
             onToggleSource={() => setIsSourceOpen((open) => !open)}
           />
 
-          <main
-            ref={workspaceRef}
-            className={`explore-workspace ${isDragging ? 'workspace-resizing' : ''}`}
-          >
-            <div className="workspace-center-canvas">
-              <GraphCanvas
-                nodes={nodes}
-                edges={edges}
-                onNodesChange={onNodesChange}
-                onEdgesChange={onEdgesChange}
-                graphData={graphData}
-                isScanning={isScanning}
-                error={error}
-                onDismissError={() => setError(null)}
-                onNodeClick={handleSelectNode}
-                onPaneClick={() => handleSelectNode(null)}
-              />
-            </div>
-
-            {graphData && graphData.nodes && graphData.nodes.length > 0 && isSourceOpen && (
-              <>
-                <div
-                  className={`workspace-splitter ${isDragging ? 'is-dragging' : ''}`}
-                  role="separator"
-                  aria-orientation="vertical"
-                  aria-valuenow={viewerWidth}
-                  aria-valuemin={320}
-                  aria-valuemax={850}
-                  aria-label="Resize source viewer panel"
-                  tabIndex={0}
-                  onMouseDown={handleSplitterMouseDown}
-                  onKeyDown={handleSplitterKeyDown}
+          {!graphData ? (
+            <StartupScreen />
+          ) : (
+            <main
+              ref={workspaceRef}
+              className={`explore-workspace ${isDragging ? 'workspace-resizing' : ''}`}
+            >
+              <div className="workspace-center-canvas">
+                <GraphCanvas
+                  nodes={nodes}
+                  edges={edges}
+                  onNodesChange={onNodesChange}
+                  onEdgesChange={onEdgesChange}
+                  graphData={graphData}
+                  isScanning={isScanning}
+                  error={error}
+                  onDismissError={() => setError(null)}
+                  onNodeClick={handleSelectNode}
+                  onPaneClick={() => handleSelectNode(null)}
                 />
-                <SourceViewer
-                  selectedNode={selectedNode}
-                  sourceState={sourceState}
-                  onRetry={handleRetrySource}
-                  onClose={handleCloseSource}
-                  onCollapse={handleCollapseSource}
-                  incomingCount={incomingCount}
-                  outgoingCount={outgoingCount}
-                  width={viewerWidth}
-                />
-              </>
-            )}
+              </div>
 
-            {graphData && graphData.nodes && graphData.nodes.length > 0 && !isSourceOpen && (
-              <button
-                type="button"
-                className="btn-expand-explorer"
-                onClick={handleExpandSource}
-                title={selectedNode ? `Expand source explorer (${selectedNode.data.name})` : 'Expand source explorer'}
-                aria-label="Expand source explorer"
-              >
-                <span className="expand-icon" aria-hidden="true">‹</span>
-                <span className="expand-label">Source</span>
-              </button>
-            )}
-          </main>
+              {graphData && graphData.nodes && graphData.nodes.length > 0 && isSourceOpen && (
+                <>
+                  <div
+                    className={`workspace-splitter ${isDragging ? 'is-dragging' : ''}`}
+                    role="separator"
+                    aria-orientation="vertical"
+                    aria-valuenow={viewerWidth}
+                    aria-valuemin={320}
+                    aria-valuemax={850}
+                    aria-label="Resize source viewer panel"
+                    tabIndex={0}
+                    onMouseDown={handleSplitterMouseDown}
+                    onKeyDown={handleSplitterKeyDown}
+                  />
+                  <SourceViewer
+                    selectedNode={selectedNode}
+                    sourceState={sourceState}
+                    onRetry={handleRetrySource}
+                    onClose={handleCloseSource}
+                    onCollapse={handleCollapseSource}
+                    incomingCount={incomingCount}
+                    outgoingCount={outgoingCount}
+                    width={viewerWidth}
+                  />
+                </>
+              )}
+
+              {graphData && graphData.nodes && graphData.nodes.length > 0 && !isSourceOpen && (
+                <button
+                  type="button"
+                  className="btn-expand-explorer"
+                  onClick={handleExpandSource}
+                  title={selectedNode ? `Expand source explorer (${selectedNode.data.name})` : 'Expand source explorer'}
+                  aria-label="Expand source explorer"
+                >
+                  <span className="expand-icon" aria-hidden="true">‹</span>
+                  <span className="expand-label">Source</span>
+                </button>
+              )}
+            </main>
+          )}
         </div>
       </div>
 
