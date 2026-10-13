@@ -1426,14 +1426,16 @@
   height: 0;
 }
 
-.sidebar-body.sidebar-body-files {
+.sidebar-body.sidebar-body-files,
+.sidebar-body.sidebar-body-deps {
   padding: 0.65rem 0.35rem 0.65rem 0.5rem;
   overflow: hidden;
   display: flex;
   flex-direction: column;
 }
 
-.sidebar-body.sidebar-body-files .sidebar-section {
+.sidebar-body.sidebar-body-files .sidebar-section,
+.sidebar-body.sidebar-body-deps .sidebar-section {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -2050,6 +2052,469 @@
 }
 
 /* --------------------------------------------------------------------------
+   Dependency Inspectors (Internal, External, Unresolved)
+   -------------------------------------------------------------------------- */
+.sidebar-deps-wrapper {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.dep-inspector-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  padding: 0.25rem 0.35rem 1rem;
+}
+
+/* Filter Input */
+.dep-filter-wrapper {
+  display: flex;
+  align-items: center;
+  position: relative;
+  margin-bottom: 0.5rem;
+  padding: 0 0.25rem;
+}
+
+.dep-filter-icon {
+  position: absolute;
+  left: 0.65rem;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.dep-filter-input {
+  width: 100%;
+  height: 28px;
+  padding: 0 1.6rem 0 1.85rem;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-size: 0.76rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.dep-filter-input:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 1px var(--accent-color);
+}
+
+.dep-filter-input::placeholder {
+  color: var(--text-muted);
+}
+
+.dep-filter-clear-btn {
+  position: absolute;
+  right: 0.65rem;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  border-radius: 3px;
+}
+
+.dep-filter-clear-btn:hover {
+  color: var(--text-primary);
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+/* Summary Bar */
+.dep-summary-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.5rem;
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  margin-bottom: 0.4rem;
+}
+
+.dep-summary-warning {
+  color: var(--warning-color);
+  background-color: rgba(210, 153, 34, 0.08);
+  border-radius: 4px;
+  border-bottom: none;
+  padding: 0.4rem 0.6rem;
+}
+
+.dep-warning-icon {
+  color: var(--warning-color);
+  flex-shrink: 0;
+}
+
+/* Items List */
+.dep-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  flex: 1;
+}
+
+.dep-group-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.dep-group-header {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.45rem;
+  border-radius: 4px;
+  cursor: pointer;
+  user-select: none;
+  font-size: 0.78rem;
+  transition: background-color 0.1s ease;
+}
+
+.dep-group-header:hover {
+  background-color: rgba(255, 255, 255, 0.04);
+}
+
+.dep-group-header.selected,
+.dep-group-header.has-selected {
+  background-color: rgba(88, 166, 255, 0.12);
+  color: var(--accent-color);
+}
+
+.dep-disclosure-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.dep-item-icon {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.dep-source-label,
+.dep-package-name {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.dep-package-name {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 0.78rem;
+}
+
+.package-icon {
+  color: #a371f7;
+}
+
+.dep-file-name {
+  font-weight: 500;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dep-file-dir {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dep-badge-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 16px;
+  padding: 0 4px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.08);
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.dep-btn-open-file {
+  font-size: 0.65rem;
+  padding: 1px 5px;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: 3px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.1s ease;
+  opacity: 0;
+}
+
+.dep-group-header:hover .dep-btn-open-file {
+  opacity: 1;
+}
+
+.dep-btn-open-file:hover {
+  color: var(--text-primary);
+  border-color: var(--accent-color);
+  background-color: rgba(88, 166, 255, 0.1);
+}
+
+/* Sub-list (child items under a source file or package) */
+.dep-sub-list {
+  display: flex;
+  flex-direction: column;
+  padding-left: 1.25rem;
+  margin: 0.15rem 0 0.35rem;
+  border-left: 1px solid rgba(255, 255, 255, 0.06);
+  margin-left: 0.85rem;
+  gap: 0.15rem;
+}
+
+.dep-sub-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0.4rem;
+  border-radius: 4px;
+  cursor: pointer;
+  user-select: none;
+  font-size: 0.74rem;
+  transition: background-color 0.1s ease;
+}
+
+.dep-sub-row:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.dep-sub-row.selected {
+  background-color: rgba(88, 166, 255, 0.15);
+}
+
+.dep-edge-arrow {
+  color: var(--accent-color);
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.file-sub-icon {
+  color: var(--text-muted);
+}
+
+.dep-sub-info {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  flex: 1;
+  gap: 0.1rem;
+}
+
+.dep-target-title-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dep-target-specifier-row {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.68rem;
+}
+
+.dep-specifier-text {
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 140px;
+}
+
+.dep-line-pill {
+  font-size: 0.62rem;
+  font-family: var(--font-mono);
+  padding: 0 4px;
+  border-radius: 3px;
+  background-color: rgba(255, 255, 255, 0.06);
+  color: var(--text-secondary);
+}
+
+.dep-line-warning {
+  background-color: rgba(210, 153, 34, 0.15);
+  color: var(--warning-color);
+}
+
+.dep-kind-pill {
+  font-size: 0.6rem;
+  padding: 0 3px;
+  border-radius: 2px;
+  background-color: rgba(88, 166, 255, 0.1);
+  color: var(--accent-color);
+  text-transform: uppercase;
+}
+
+/* Unresolved Cards */
+.dep-unresolved-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.55rem 0.65rem;
+  background-color: var(--bg-card);
+  border: 1px solid rgba(210, 153, 34, 0.3);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.12s ease;
+  user-select: none;
+}
+
+.dep-unresolved-card:hover {
+  border-color: var(--warning-color);
+  background-color: rgba(210, 153, 34, 0.05);
+}
+
+.dep-unresolved-card.selected {
+  border-color: var(--accent-color);
+  background-color: rgba(88, 166, 255, 0.08);
+}
+
+.dep-unresolved-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dep-unresolved-badge {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: var(--warning-color);
+  background-color: rgba(210, 153, 34, 0.15);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
+.dep-unresolved-specifier-box {
+  background-color: rgba(0, 0, 0, 0.25);
+  border-radius: 4px;
+  padding: 0.25rem 0.45rem;
+  overflow: hidden;
+}
+
+.dep-unresolved-specifier-text {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: #ff7b72;
+  word-break: break-all;
+}
+
+.dep-unresolved-footer {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+}
+
+.dep-unresolved-file-label {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.dep-action-hint {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+}
+
+/* Empty States */
+.dep-inspector-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 1rem;
+  text-align: center;
+}
+
+.dep-empty-icon {
+  color: var(--text-muted);
+  margin-bottom: 0.65rem;
+  opacity: 0.7;
+}
+
+.dep-empty-title {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 0.35rem;
+}
+
+.dep-empty-desc {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+  margin: 0;
+}
+
+.dep-empty-clean {
+  padding: 3rem 1.25rem;
+}
+
+.dep-clean-icon {
+  color: var(--success-color);
+  margin-bottom: 0.75rem;
+}
+
+.dep-clean-title {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 0.35rem;
+}
+
+.dep-clean-desc {
+  font-size: 0.76rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+  margin: 0;
+}
+
+.dep-filter-empty {
+  padding: 1.5rem 0.5rem;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+/* --------------------------------------------------------------------------
    Scrollbar Suppression (Left sidebar & Right source panel)
    Preserves full mouse-wheel, touchpad, and keyboard navigation while
    completely hiding ugly visual browser scrollbars.
@@ -2062,6 +2527,12 @@
 .sidebar-file-tree-wrapper *,
 .file-tree-container,
 .file-tree-container *,
+.sidebar-deps-wrapper,
+.sidebar-deps-wrapper *,
+.dep-inspector-container,
+.dep-inspector-container *,
+.dep-items-list,
+.dep-items-list *,
 .source-viewer-panel,
 .source-viewer-panel *,
 .viewer-body,
@@ -2080,6 +2551,12 @@
 .sidebar-file-tree-wrapper *::-webkit-scrollbar,
 .file-tree-container::-webkit-scrollbar,
 .file-tree-container *::-webkit-scrollbar,
+.sidebar-deps-wrapper::-webkit-scrollbar,
+.sidebar-deps-wrapper *::-webkit-scrollbar,
+.dep-inspector-container::-webkit-scrollbar,
+.dep-inspector-container *::-webkit-scrollbar,
+.dep-items-list::-webkit-scrollbar,
+.dep-items-list *::-webkit-scrollbar,
 .source-viewer-panel::-webkit-scrollbar,
 .source-viewer-panel *::-webkit-scrollbar,
 .viewer-body::-webkit-scrollbar,

@@ -9,6 +9,9 @@ import {
   FolderIcon,
 } from './Icons.jsx';
 import { FileTree } from './FileTree.jsx';
+import { InternalDepsList } from './InternalDepsList.jsx';
+import { ExternalDepsList } from './ExternalDepsList.jsx';
+import { UnresolvedDepsList } from './UnresolvedDepsList.jsx';
 
 /**
  * Contextual sidebar immediately adjacent to the activity bar.
@@ -62,7 +65,7 @@ export function ContextualSidebar({
       </div>
 
       {/* Sidebar Content Area */}
-      <div className={`sidebar-body ${activeTab === 'files' ? 'sidebar-body-files' : ''}`}>
+      <div className={`sidebar-body ${activeTab === 'files' ? 'sidebar-body-files' : ''} ${activeTab !== 'scanner' ? 'sidebar-body-deps' : ''}`}>
         {/* 1. Repository Scanner Category */}
         {activeTab === 'scanner' && (
           <div className="sidebar-section">
@@ -180,25 +183,18 @@ export function ContextualSidebar({
               {summary && <span className="section-count">{summary.totalEdges}</span>}
             </div>
 
-            {graphData?.edges && graphData.edges.length > 0 ? (
-              <div className="sidebar-placeholder-content">
-                <p className="sidebar-hint">
-                  <strong>{summary?.totalEdges}</strong> internal dependency edges resolved.
-                </p>
-                <div className="sidebar-placeholder-card">
-                  <InternalDepIcon size={24} className="placeholder-icon" />
-                  <h4>Internal Dependency Matrix</h4>
-                  <p>
-                    Detailed edge inspection and dependency matrix will be implemented in Step 2.
-                  </p>
-                </div>
+            {graphData ? (
+              <div className="sidebar-deps-wrapper">
+                <InternalDepsList
+                  edges={graphData.edges}
+                  selectedFilePath={selectedFilePath}
+                  onSelectFile={onSelectFile}
+                />
               </div>
             ) : (
               <div className="sidebar-empty-state">
-                <p className="empty-text">No dependency edges detected.</p>
-                <p className="empty-subtext">
-                  {graphData ? 'All indexed files are isolated or import external packages.' : 'Index a repository to view internal dependencies.'}
-                </p>
+                <p className="empty-text">No repository indexed yet.</p>
+                <p className="empty-subtext">Index a repository to view internal dependencies.</p>
               </div>
             )}
           </div>
@@ -212,22 +208,17 @@ export function ContextualSidebar({
               {summary && <span className="section-count">{summary.externalCount}</span>}
             </div>
 
-            {summary?.externalCount > 0 ? (
-              <div className="sidebar-placeholder-content">
-                <p className="sidebar-hint">
-                  <strong>{summary.externalCount}</strong> external package dependencies found.
-                </p>
-                <div className="sidebar-placeholder-card">
-                  <ExternalDepIcon size={24} className="placeholder-icon" />
-                  <h4>External Package Inspector</h4>
-                  <p>
-                    Third-party package and manifest analysis will be integrated in Step 2.
-                  </p>
-                </div>
+            {graphData ? (
+              <div className="sidebar-deps-wrapper">
+                <ExternalDepsList
+                  external={graphData.external}
+                  selectedFilePath={selectedFilePath}
+                  onSelectFile={onSelectFile}
+                />
               </div>
             ) : (
               <div className="sidebar-empty-state">
-                <p className="empty-text">No external packages detected.</p>
+                <p className="empty-text">No repository indexed yet.</p>
                 <p className="empty-subtext">Index a repository to analyze package dependencies.</p>
               </div>
             )}
@@ -242,25 +233,18 @@ export function ContextualSidebar({
               {summary && <span className="section-count">{summary.unresolvedCount}</span>}
             </div>
 
-            {summary?.unresolvedCount > 0 ? (
-              <div className="sidebar-placeholder-content">
-                <p className="sidebar-hint">
-                  <strong>{summary.unresolvedCount}</strong> unresolved import specifiers found.
-                </p>
-                <div className="sidebar-placeholder-card">
-                  <UnresolvedDepIcon size={24} className="placeholder-icon text-warning" />
-                  <h4>Import Diagnostics</h4>
-                  <p>
-                    Detailed missing file diagnostics will be available in Step 2.
-                  </p>
-                </div>
+            {graphData ? (
+              <div className="sidebar-deps-wrapper">
+                <UnresolvedDepsList
+                  unresolved={graphData.unresolved}
+                  selectedFilePath={selectedFilePath}
+                  onSelectFile={onSelectFile}
+                />
               </div>
             ) : (
               <div className="sidebar-empty-state">
-                <p className="empty-text">Zero unresolved imports.</p>
-                <p className="empty-subtext">
-                  {graphData ? 'All internal relative import specifiers resolved cleanly.' : 'Index a repository to verify import resolutions.'}
-                </p>
+                <p className="empty-text">No repository indexed yet.</p>
+                <p className="empty-subtext">Index a repository to verify import resolutions.</p>
               </div>
             )}
           </div>
