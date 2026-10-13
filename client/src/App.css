@@ -1,270 +1,618 @@
-.trailo-app {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 2rem 1.5rem;
+/* ==========================================================================
+   Trailo Explore Workspace - Dark Developer Theme
+   ========================================================================== */
+
+.trailo-explore-app {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100vh;
+  width: 100%;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  overflow: hidden;
 }
 
-.trailo-header {
+/* --------------------------------------------------------------------------
+   Header Bar
+   -------------------------------------------------------------------------- */
+.explore-header {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: center;
-  padding-bottom: 1.5rem;
+  gap: 1.25rem;
+  padding: 0.65rem 1.25rem;
+  background-color: var(--bg-secondary);
   border-bottom: 1px solid var(--border-color);
+  z-index: 20;
+  flex-shrink: 0;
+  flex-wrap: wrap;
 }
 
-.logo-container {
+.header-brand-section {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.6rem;
 }
 
-.logo-icon {
-  font-size: 1.75rem;
+.brand-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
 }
 
-.logo-text {
-  font-size: 1.5rem;
+.brand-icon {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.brand-title {
+  font-size: 1.25rem;
   font-weight: 700;
   letter-spacing: -0.02em;
   color: var(--text-primary);
 }
 
-.header-meta {
-  display: flex;
-  gap: 0.5rem;
+.brand-tag {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  background-color: rgba(88, 166, 255, 0.12);
+  color: var(--accent-color);
+  border: 1px solid rgba(88, 166, 255, 0.25);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-.badge {
-  font-size: 0.75rem;
+/* --------------------------------------------------------------------------
+   Search & Scan Form
+   -------------------------------------------------------------------------- */
+.header-search-form {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  max-width: 640px;
+  min-width: 260px;
+}
+
+.input-wrapper {
+  position: relative;
+  flex: 1;
+}
+
+.repo-input {
+  width: 100%;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  padding: 0.45rem 0.75rem;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.repo-input:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.2);
+}
+
+.repo-input::placeholder {
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+}
+
+.btn-scan {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.9rem;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
   font-weight: 600;
-  padding: 0.25rem 0.5rem;
-  border-radius: 9999px;
+  color: #ffffff;
+  background-color: var(--accent-color);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.15s ease, opacity 0.15s ease;
+}
+
+.btn-scan:hover:not(:disabled) {
+  background-color: var(--accent-hover);
+}
+
+.btn-scan:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.spinner-inline {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* --------------------------------------------------------------------------
+   Summary Pills
+   -------------------------------------------------------------------------- */
+.header-summary-section {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.summary-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.55rem;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 0.75rem;
+}
+
+.pill-repo {
+  color: var(--text-primary);
+  font-weight: 600;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pill-icon {
+  font-size: 0.85rem;
+}
+
+.pill-count {
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.pill-label {
+  color: var(--text-secondary);
+}
+
+.pill-files .pill-count {
+  color: var(--accent-color);
+}
+
+.pill-edges .pill-count {
+  color: var(--success-color);
+}
+
+.pill-external .pill-count {
+  color: #a371f7;
+}
+
+.pill-unresolved .pill-count {
+  color: var(--warning-color);
+}
+
+/* --------------------------------------------------------------------------
+   Workspace Area & Canvas
+   -------------------------------------------------------------------------- */
+.explore-workspace {
+  flex: 1;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.graph-canvas-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background-color: var(--bg-primary);
+}
+
+.trailo-flow {
+  width: 100%;
+  height: 100%;
+}
+
+/* --------------------------------------------------------------------------
+   Custom File Node
+   -------------------------------------------------------------------------- */
+.trailo-file-node {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  min-width: 220px;
+  max-width: 280px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  cursor: pointer;
+}
+
+.trailo-file-node:hover {
+  border-color: var(--accent-color);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45);
+}
+
+.node-card-body {
+  padding: 0.65rem 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.node-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.badge-lang {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  letter-spacing: 0.04em;
   background-color: var(--bg-card);
   border: 1px solid var(--border-color);
   color: var(--text-secondary);
 }
 
-.trailo-main {
-  flex: 1;
-  padding: 2.5rem 0;
-  display: flex;
-  flex-direction: column;
-  gap: 2.5rem;
+.badge-lang-js {
+  background-color: rgba(241, 224, 90, 0.15);
+  color: #f1e05a;
+  border-color: rgba(241, 224, 90, 0.3);
 }
 
-.hero h1 {
-  font-size: 2.25rem;
-  font-weight: 800;
-  line-height: 1.2;
-  margin-bottom: 0.75rem;
-  background: linear-gradient(135deg, #ffffff 0%, #8b949e 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+.badge-lang-ts {
+  background-color: rgba(49, 120, 198, 0.15);
+  color: #58a6ff;
+  border-color: rgba(49, 120, 198, 0.3);
 }
 
-.hero-subtitle {
-  font-size: 1.1rem;
-  color: var(--text-secondary);
-  max-width: 680px;
+.badge-lang-tsx,
+.badge-lang-jsx {
+  background-color: rgba(97, 218, 251, 0.15);
+  color: #79c0ff;
+  border-color: rgba(97, 218, 251, 0.3);
 }
 
-.status-section h2,
-.roadmap-preview h2 {
-  font-size: 1.25rem;
+.node-filename {
+  font-size: 0.85rem;
   font-weight: 600;
-  margin-bottom: 1rem;
   color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.status-card {
-  background-color: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  padding: 1.5rem;
-}
-
-.status-loading {
+.node-path-row {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  color: var(--text-secondary);
 }
 
-.spinner {
-  width: 18px;
-  height: 18px;
-  border: 2px solid var(--border-color);
+.node-dir {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.node-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  margin-top: 0.15rem;
+}
+
+.node-metric {
+  font-variant-numeric: tabular-nums;
+}
+
+.node-divider {
+  color: var(--text-muted);
+}
+
+/* React Flow Handles */
+.node-handle {
+  width: 8px !important;
+  height: 8px !important;
+  background-color: var(--accent-color) !important;
+  border: 2px solid var(--bg-secondary) !important;
+  border-radius: 50% !important;
+}
+
+.handle-target {
+  left: -5px !important;
+}
+
+.handle-source {
+  right: -5px !important;
+}
+
+/* --------------------------------------------------------------------------
+   React Flow Controls & Minimap Overrides
+   -------------------------------------------------------------------------- */
+.trailo-controls {
+  background-color: var(--bg-secondary) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+  overflow: hidden !important;
+}
+
+.trailo-controls button {
+  background-color: var(--bg-secondary) !important;
+  border-bottom: 1px solid var(--border-color) !important;
+  color: var(--text-primary) !important;
+  fill: var(--text-primary) !important;
+}
+
+.trailo-controls button:hover {
+  background-color: var(--bg-card) !important;
+}
+
+.trailo-controls button:last-child {
+  border-bottom: none !important;
+}
+
+.trailo-minimap {
+  border: 1px solid var(--border-color) !important;
+  border-radius: 8px !important;
+  background-color: var(--bg-secondary) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Canvas Overlays & States
+   -------------------------------------------------------------------------- */
+.canvas-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  z-index: 10;
+  background-color: rgba(13, 17, 23, 0.85);
+  backdrop-filter: blur(4px);
+}
+
+.loading-overlay {
+  flex-direction: column;
+  gap: 0.75rem;
+  text-align: center;
+}
+
+.large-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--border-color);
   border-top-color: var(--accent-color);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
 
+.overlay-title {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.overlay-desc {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  max-width: 420px;
+}
+
+/* Error Card */
+.error-card {
+  background-color: var(--bg-secondary);
+  border: 1px solid rgba(248, 81, 73, 0.4);
+  border-radius: 8px;
+  padding: 1.5rem;
+  max-width: 480px;
+  width: 100%;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.error-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.75rem;
+}
+
+.error-icon {
+  font-size: 1.25rem;
+}
+
+.error-title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.error-heading {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.error-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  background-color: rgba(248, 81, 73, 0.15);
+  color: var(--error-color);
+  border: 1px solid rgba(248, 81, 73, 0.3);
+}
+
+.error-message {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 1.25rem;
+}
+
+.error-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Empty State Card */
+.empty-card {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 2.25rem;
+  max-width: 460px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.empty-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.empty-heading {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.empty-desc {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 1.5rem;
+}
+
+.examples-container {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 0.85rem;
+  text-align: left;
+}
+
+.examples-header {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 0.4rem;
+}
+
+.examples-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.examples-list code {
+  font-size: 0.8rem;
+  color: var(--accent-color);
+}
+
+/* --------------------------------------------------------------------------
+   Truthful Info Banner (Files Indexed, Zero Internal Edges)
+   -------------------------------------------------------------------------- */
+.canvas-banner {
+  position: absolute;
+  top: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 15;
+  pointer-events: none;
+}
+
+.info-banner .banner-content {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: rgba(22, 27, 34, 0.92);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(6px);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  pointer-events: auto;
+}
+
+.banner-icon {
+  font-size: 1rem;
+}
+
+.banner-main-text {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.banner-subtext {
+  color: var(--text-secondary);
+}
+
+/* --------------------------------------------------------------------------
+   Footer Bar
+   -------------------------------------------------------------------------- */
+.explore-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 0.4rem 1rem;
+  background-color: var(--bg-secondary);
+  border-top: 1px solid var(--border-color);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.footer-brand {
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.footer-sep {
+  color: var(--border-color);
+}
+
+/* --------------------------------------------------------------------------
+   Animations & Responsive Breakpoints
+   -------------------------------------------------------------------------- */
 @keyframes spin {
   to {
     transform: rotate(360deg);
   }
 }
 
-.status-indicator-row {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  margin-bottom: 1rem;
-}
+@media (max-width: 900px) {
+  .explore-header {
+    gap: 0.75rem;
+    padding: 0.5rem 0.75rem;
+  }
 
-.status-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-}
-
-.dot-success {
-  background-color: var(--success-color);
-  box-shadow: 0 0 8px rgba(63, 185, 80, 0.4);
-}
-
-.dot-error {
-  background-color: var(--error-color);
-  box-shadow: 0 0 8px rgba(248, 81, 73, 0.4);
-}
-
-.status-title {
-  font-weight: 600;
-  font-size: 1rem;
-}
-
-.status-tag {
-  font-size: 0.75rem;
-  padding: 0.15rem 0.5rem;
-  border-radius: 4px;
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
-.status-ok {
-  background-color: rgba(63, 185, 80, 0.15);
-  color: var(--success-color);
-  border: 1px solid rgba(63, 185, 80, 0.3);
-}
-
-.status-failed {
-  background-color: rgba(248, 81, 73, 0.15);
-  color: var(--error-color);
-  border: 1px solid rgba(248, 81, 73, 0.3);
-}
-
-.status-details {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 1rem;
-  background-color: var(--bg-card);
-  padding: 1rem;
-  border-radius: 6px;
-  margin-bottom: 1.25rem;
-  border: 1px solid var(--border-color);
-}
-
-.detail-item {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.detail-item .label {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.detail-item .value {
-  font-size: 0.95rem;
-  color: var(--text-primary);
-}
-
-.error-description {
-  color: var(--text-primary);
-  margin-bottom: 0.5rem;
-}
-
-.error-technical {
-  font-size: 0.85rem;
-  color: var(--error-color);
-  margin-bottom: 1.25rem;
-}
-
-.btn {
-  font-family: inherit;
-  font-size: 0.875rem;
-  font-weight: 600;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  border: 1px solid transparent;
-}
-
-.btn-primary {
-  background-color: var(--accent-color);
-  color: #ffffff;
-}
-
-.btn-primary:hover {
-  background-color: var(--accent-hover);
-}
-
-.btn-secondary {
-  background-color: var(--bg-card);
-  border-color: var(--border-color);
-  color: var(--text-primary);
-}
-
-.btn-secondary:hover {
-  background-color: var(--border-color);
-}
-
-.feature-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 1rem;
-}
-
-.feature-card {
-  background-color: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  padding: 1.25rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.feature-step {
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: var(--accent-color);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.feature-card h3 {
-  font-size: 1rem;
-  font-weight: 600;
-}
-
-.feature-card p {
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-  line-height: 1.5;
-}
-
-.trailo-footer {
-  border-top: 1px solid var(--border-color);
-  padding-top: 1.5rem;
-  text-align: center;
-  font-size: 0.85rem;
-  color: var(--text-muted);
+  .header-search-form {
+    order: 3;
+    width: 100%;
+    max-width: none;
+  }
 }

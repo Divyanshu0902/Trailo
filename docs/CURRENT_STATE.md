@@ -1,8 +1,8 @@
 # Current Project State
 
-**Last updated:** Phase 4C Step 1 (Backend Prerequisites completed and verified)
-**Current phase:** Phase 4C — Interactive Graph and Source Explorer (Step 1 complete; Step 2 pending review and authorization)
-**Verified commit:** 290a361 (feat: add dependency graph API; working tree contains uncommitted Phase 4B spec and Phase 4C Step 1 implementation)
+**Last updated:** Phase 4C Step 2B (Real Dependency Graph Rendering completed and verified)
+**Current phase:** Phase 4C — Interactive Graph and Source Explorer (Step 1 complete, Step 2B complete; Steps 3–4 pending review and authorization)
+**Verified commit:** 290a361 (feat: add dependency graph API; working tree contains uncommitted Phase 4B spec, Phase 4C Step 1 API, and Phase 4C Step 2B client implementation)
 **Branch:** main
 
 ## Phase Roadmap Status
@@ -13,7 +13,7 @@
 | **Phase 1** | App skeleton | **Complete** (committed in `e410760`) |
 | **Phase 2** | Safe scanning | **Complete** (committed in `e410760`, 10/10 tests pass) |
 | **Phase 3** | Index and dependency extraction | **Complete** (committed in `20c0ecf`, 54/54 tests pass) |
-| **Phase 4** | Graph and source explorer | **In Progress** (Phase 4A complete; Phase 4B spec finalized; Phase 4C Step 1 complete, 90/90 tests pass; Steps 2–4 pending) |
+| **Phase 4** | Graph and source explorer | **In Progress** (Phase 4A complete; Phase 4B spec finalized; Phase 4C Step 1 & Step 2B complete; Steps 3–4 pending) |
 | **Phase 5** | Q&A vertical slice | **Not Started** |
 | **Phase 6** | Citation validation and integration | **Not Started** |
 | **Phase 7** | Complete user journey | **Not Started** |
@@ -55,15 +55,22 @@
 - **Backend prerequisites for interactive explorer (Phase 4C Step 1):** Implemented in `server/src/indexer/` (`scanRoutes.js`, `fileRoutes.js`).
   - Scan initialization: `POST /api/scan` and `POST /api/repositories` with input validation, `ScannerError` HTTP mapping, and repository summary responses.
   - Source content retrieval: `GET /api/repositories/:id/files?path=...` and `GET /api/files?path=...` (also `.../files/*`) with strict in-memory snapshot retrieval, POSIX relative path validation, and traversal prevention (`INVALID_FILE_PATH`, `FILE_NOT_FOUND`).
+- **Real dependency graph rendering (Phase 4C Step 2B):** Implemented in `client/` using `@xyflow/react` (`^12.12.0`).
+  - Workspace header (`client/src/components/ExploreHeader.jsx`): Repository path input, scan trigger button with loading indicator, and summary metrics pills (`Files`, `Edges`, `External`, `Unresolved`).
+  - Interactive canvas (`client/src/components/GraphCanvas.jsx`): React Flow integration with `<Controls>`, `<Background>`, `<MiniMap>`, smoothstep directed edges with directional arrow markers, zoom, pan, and fit-to-view.
+  - Custom file node (`client/src/components/FileNode.jsx`): Shows language badge (`JS`, `TS`, `TSX`, `JSX`), file name, directory path, line count, and byte size.
+  - Deterministic layout (`client/src/utils/layout.js`): Layered topological layout for connected dependency graphs with orderly grid tiling for isolated nodes.
+  - Truthful states: Unindexed state prompt, in-flight loading overlay, structured error card overlay, and an informative banner when indexed files have zero internal dependency edges.
+  - Scope discipline maintained: Source viewer, edge clicking, file tree, and Q&A remain unbuilt.
 - **Automated test suite:** 90/90 tests passing cleanly across 22 suites with Node.js built-in runner (`node --test`), covering health endpoint, repository scanner, line chunker, JS/TS analyzer, path resolver, index store, end-to-end repository indexing, graph builder unit tests, graph route integration tests, scan route API tests, and secure file content API tests with encoded/double-encoded path defenses.
 - **Client production build:** Verified `vite build` cleanly emitting production assets into `client/dist/`.
 - **Git & Whitespace:** `git diff --check` reports 0 errors.
 
 ## Open Items & Next Intended Task
 
-- **Current Increment Status:** Phase 4C Step 1 — Backend Prerequisites (completed, tested, and verified; awaiting developer review and approval).
-- **Next Phase / Increment:** Phase 4C Step 2 — Interactive Dependency Graph UI (render nodes and directed edges on canvas, zoom/pan/fit-to-view, selection states).
-- **Execution rule:** Phase 4C Steps 2–4 remain **not started**. Implementation of Step 2 will begin only upon explicit user authorization.
+- **Current Increment Status:** Phase 4C Step 2B — Real Dependency Graph Rendering (completed, tested, and verified; awaiting developer review and approval).
+- **Next Phase / Increment:** Phase 4C Step 2C / Step 3 — Node selection states and Source viewer / File tree panel.
+- **Execution rule:** Phase 4C Step 3 and later phases remain **not started**. Implementation will begin only upon explicit user authorization.
 
 ## Update Rule
 
