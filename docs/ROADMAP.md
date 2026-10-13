@@ -23,7 +23,9 @@ A phase is complete only when its acceptance criteria are demonstrated. Agent co
 - Acceptance: deterministic fixture output; correct 1-based line ranges; normalized dependency records with honest resolution states (resolved, external, unresolved).
 
 ## Phase 4 — Graph and source explorer
-- Build interactive graph, search/filter, selection, neighbors, and source preview.
+- Phase 4A — Backend Graph API: transform indexed files and dependencies into directed graph payloads and expose REST endpoints.
+- Phase 4B — UI Interaction Specification: define and approve UI layout, interactions, selection states, search/filter contracts, and source preview before implementation.
+- Phase 4C — Interactive Graph and Source Explorer: build interactive graph visualization, search/filter, selection, neighbors, and source preview.
 - Acceptance: graph matches fixture data; interactions and empty/error states work.
 
 ## Phase 5 — Q&A vertical slice
