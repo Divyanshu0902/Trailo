@@ -5,6 +5,7 @@ import {
   createScanRouter,
   createFileRouter,
 } from './indexer/index.js';
+import { createQuestionRoutes } from './ask/index.js';
 
 /**
  * Creates and configures the Express application.
@@ -14,6 +15,8 @@ import {
  * @param {import('./indexer/indexStore.js').IndexStore} [config.store] - In-memory index store instance
  * @param {Function} [config.indexRepository] - Optional repository indexing coordinator function
  * @param {Console | object} [config.logger] - Optional logger instance for server logging
+ * @param {object} [config.geminiAdapter] - Optional Gemini streaming adapter instance
+ * @param {number} [config.timeoutMs] - Optional streaming timeout in milliseconds
  * @returns {import('express').Express}
  */
 export function createApp(config = {}) {
@@ -43,6 +46,14 @@ export function createApp(config = {}) {
 
   // Graph endpoints
   app.use('/api', createGraphRouter({ store }));
+
+  // Ask Trailo Q&A streaming endpoints
+  app.use('/api', createQuestionRoutes({
+    store,
+    geminiAdapter: config.geminiAdapter,
+    timeoutMs: config.timeoutMs,
+    logger: config.logger,
+  }));
 
   return app;
 }

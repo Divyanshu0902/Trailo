@@ -9,6 +9,7 @@ import { GraphCanvas } from './components/GraphCanvas.jsx';
 import { ClusterCanvas } from './components/ClusterCanvas.jsx';
 import { SourceViewer } from './components/SourceViewer.jsx';
 import { StartupScreen } from './components/StartupScreen.jsx';
+import { AskTrailoWorkspace } from './components/AskTrailoWorkspace.jsx';
 import { AskTrailoIcon } from './components/Icons.jsx';
 import { computeGraphLayout } from './utils/layout.js';
 import { computeClusterLayout } from './utils/clusterLayout.js';
@@ -38,6 +39,7 @@ export default function App() {
   // Selection & Source explorer state
 
   const [selectedNodeId, setSelectedNodeId] = useState(null);
+  const [sourceHighlightRange, setSourceHighlightRange] = useState(null);
   const [isSourceOpen, setIsSourceOpen] = useState(false);
   const [sourceRetryCount, setSourceRetryCount] = useState(0);
   const [sourceState, setSourceState] = useState({
@@ -383,6 +385,7 @@ export default function App() {
    */
   const handleSelectNode = useCallback(
     (nodeId) => {
+      setSourceHighlightRange(null);
       const next = transitionSelectionState({
         currentSelectedId: selectedNodeId,
         nextSelectedId: nodeId,
@@ -401,16 +404,17 @@ export default function App() {
   );
 
   /**
-   * Handles file selection from the repository file tree.
+   * Handles file selection from the repository file tree or citations.
    * - Sets active file selection.
    * - Automatically opens/updates the source explorer.
    * - If the file has a matching node on the dependency graph, highlights the node and edges.
    * - If the file has no graph node, clears graph node highlights while still displaying source.
    */
   const handleSelectFile = useCallback(
-    (filePath) => {
+    (filePath, highlight = null) => {
       if (!filePath) return;
 
+      setSourceHighlightRange(highlight);
       setSelectedNodeId(filePath);
       setIsSourceOpen(true);
 
@@ -422,6 +426,22 @@ export default function App() {
       }
     },
     [nodes, edges, applyHighlights]
+  );
+
+  /**
+   * Navigates to a validated citation target in the Source Viewer.
+   */
+  const handleCitationClick = useCallback(
+    (citation) => {
+      if (!citation || !citation.filePath) return;
+      const normalizedPath = citation.filePath.replace(/\\/g, '/');
+      handleSelectFile(normalizedPath, {
+        startLine: citation.startLine,
+        endLine: citation.endLine,
+        evidenceId: citation.evidenceId,
+      });
+    },
+    [handleSelectFile]
   );
 
   /**
@@ -445,6 +465,7 @@ export default function App() {
   const handleCloseSource = useCallback(() => {
     setIsSourceOpen(false);
     setSelectedNodeId(null);
+    setSourceHighlightRange(null);
     applyHighlights(null, nodes, edges);
   }, [nodes, edges, applyHighlights]);
 
@@ -727,17 +748,6 @@ export default function App() {
             <StartupScreen />
           ) : !activeWorkspace || openWorkspaces.length === 0 ? (
             <StartupScreen />
-          ) : activeWorkspace === 'ask' ? (
-            <div className="workspace-placeholder" role="region" aria-label="Ask Trailo Workspace">
-              <div className="workspace-placeholder-content">
-                <div className="placeholder-icon-badge">
-                  <AskTrailoIcon size={32} />
-                </div>
-                <h2 className="placeholder-title">Ask Trailo</h2>
-                <p className="placeholder-desc">Get code-grounded answers from AI.</p>
-                <div className="placeholder-status-pill">Phase 5 — Codebase Q&amp;A Vertical Slice</div>
-              </div>
-            </div>
           ) : (
             <main
               ref={workspaceRef}
@@ -756,6 +766,14 @@ export default function App() {
                     onDismissError={() => setError(null)}
                     onNodeClick={handleSelectNode}
                     onPaneClick={() => handleSelectNode(null)}
+                  />
+                ) : activeWorkspace === 'ask' ? (
+                  <AskTrailoWorkspace
+                    repositoryId={graphData.repositoryId || graphData.summary?.id}
+                    repositoryPath={graphData.rootPath}
+                    repositoryName={repoName}
+                    onCitationClick={handleCitationClick}
+                    activeHighlight={sourceHighlightRange}
                   />
                 ) : (
                   <GraphCanvas
@@ -797,6 +815,7 @@ export default function App() {
                     incomingCount={incomingCount}
                     outgoingCount={outgoingCount}
                     width={viewerWidth}
+                    highlightRange={sourceHighlightRange}
                   />
                 </>
               )}

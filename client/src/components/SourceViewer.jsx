@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef, useEffect } from 'react';
 import {
   splitSourceLines,
   getPrismGrammar,
@@ -53,6 +53,7 @@ export function SourceViewer({
   incomingCount = 0,
   outgoingCount = 0,
   width,
+  highlightRange = null,
 }) {
   const panelStyle = width ? { width: `${width}px` } : undefined;
 
@@ -116,6 +117,15 @@ export function SourceViewer({
     return getPrismGrammar(lang, selectedNode.data?.extension);
   }, [lang, selectedNode.data?.extension]);
 
+  // First cited line ref for smooth scrolling when a citation is selected
+  const firstCitedRef = useRef(null);
+
+  useEffect(() => {
+    if (highlightRange?.startLine && firstCitedRef.current) {
+      firstCitedRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [highlightRange, data]);
+
   return (
     <aside
       className="source-viewer-panel"
@@ -128,6 +138,14 @@ export function SourceViewer({
           <div className="viewer-title-row">
             <span className="viewer-badge-lang">{lang.toUpperCase()}</span>
             <span className="viewer-file-path" title={filePath}>{filePath}</span>
+            {highlightRange && typeof highlightRange.startLine === 'number' && (
+              <span
+                className="viewer-badge-citation"
+                title={`Cited lines ${highlightRange.startLine}–${highlightRange.endLine}`}
+              >
+                {highlightRange.evidenceId ? `[${highlightRange.evidenceId}] ` : ''}L{highlightRange.startLine}–L{highlightRange.endLine}
+              </span>
+            )}
           </div>
 
           <div className="viewer-meta-row">
@@ -211,8 +229,18 @@ export function SourceViewer({
               {lines.map((line, index) => {
                 const lineNum = index + 1;
                 const tokens = tokenizeSourceLine(line, grammar);
+                const isCited = Boolean(
+                  highlightRange &&
+                  typeof highlightRange.startLine === 'number' &&
+                  lineNum >= highlightRange.startLine &&
+                  lineNum <= highlightRange.endLine
+                );
                 return (
-                  <div key={lineNum} className="source-code-row">
+                  <div
+                    key={lineNum}
+                    ref={highlightRange && lineNum === highlightRange.startLine ? firstCitedRef : undefined}
+                    className={`source-code-row ${isCited ? 'is-cited' : ''}`}
+                  >
                     <span className="source-line-num" aria-hidden="true">
                       {lineNum}
                     </span>

@@ -1,4 +1,8 @@
 import { createApp } from './app.js';
+import { loadEnvironment } from './ask/index.js';
+
+// Explicitly load server environment if present
+loadEnvironment();
 
 const PORT = process.env.PORT || 3001;
 const app = createApp();
