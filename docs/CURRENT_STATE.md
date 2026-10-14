@@ -1,8 +1,8 @@
 # Current Project State
 
-**Last updated:** Phase 4C UI Redesign Step 3 & Scrollbar/Snapshot Self-Healing Fixes (completed and verified)
-**Current phase:** Phase 4C — Interactive Graph and Source Explorer (Application Shell, Compact Header, Startup Screen, Contextual Sidebar Scanner, Repository File Tree, and Scrollbar/Snapshot Fixes complete; Step 4 pending review and authorization)
-**Verified commit:** 4085612 (working tree contains Step 3 Repository File Tree and Bugfix updates)
+**Last updated:** Phase 4D Cluster View Workspace Implementation (completed and verified)
+**Current phase:** Phase 4 — Interactive Graph and Source Explorer (Application Shell, Startup Screen, Contextual Sidebar Scanner, Repository File Tree, Dependency Inspectors, Crossable Workspaces, and Cluster View complete; 222/222 tests pass)
+**Verified commit:** 4085612 (working tree contains Activity Bar, Crossable Workspaces, and Phase 4D Cluster View updates)
 **Branch:** main
 
 ## Phase Roadmap Status
@@ -13,7 +13,7 @@
 | **Phase 1** | App skeleton | **Complete** (committed in `e410760`) |
 | **Phase 2** | Safe scanning | **Complete** (committed in `e410760`, 10/10 tests pass) |
 | **Phase 3** | Index and dependency extraction | **Complete** (committed in `20c0ecf`, 54/54 tests pass) |
-| **Phase 4** | Graph and source explorer | **In Progress** (Phase 4A, 4B, 4C Steps 1, 1.1, Startup Screen, Sidebar Scanner, File Tree, and Scrollbar/Snapshot Fixes complete, 173/173 tests pass; Step 4 pending) |
+| **Phase 4** | Graph and source explorer | **Complete** (Phases 4A, 4B, 4C, and 4D Cluster View complete, 222/222 tests pass) |
 | **Phase 5** | Q&A vertical slice | **Not Started** |
 | **Phase 6** | Citation validation and integration | **Not Started** |
 | **Phase 7** | Complete user journey | **Not Started** |
@@ -98,16 +98,21 @@
   - Badge Removal: Completely removed number countings and badges from the upper activity bar icons, eliminating clutter and aligning with minimal professional IDE aesthetics.
   - Bottom Workspace Icons: Added 3 dedicated workspace icons pinned at the bottom of the Activity Bar (`.activity-bar-bottom`): Dependency Graph (`GraphIcon`), Cluster View (`ClusterIcon`), and Ask Trailo (`AskTrailoIcon`). Clicking any bottom icon opens or brings forward the corresponding workspace tab.
   - Crossable Workspace Tabs (`WorkspaceTabBar.jsx`, `App.jsx`, `App.css`): Added close (`✕`) buttons to workspace tabs. Closing a workspace tab removes it from open tabs; when all open workspaces are closed, the application cleanly and automatically returns to the centered `StartupScreen`.
-  - Workspace Placeholders: Added dark-themed preview/placeholder workspaces for Cluster View and Ask Trailo, allowing full multi-workspace tab navigation.
-- **Automated test suite:** 206/206 tests passing cleanly across 58 suites with Node.js built-in runner (`node --test`), covering health endpoint, repository scanner, line chunker, JS/TS analyzer, path resolver, index store, end-to-end repository indexing, graph builder, graph routes, scan routes, secure file content routes, graph selection engine, source loader cache/race protection, browser fetch invocation receiver bindings, line splitting and newline preservation, Prism grammar resolution and tokenization, resizer panel width clamping, graph layout state synchronization, collapsible source explorer state transitions, application shell navigation transitions, Startup Screen / Scanner Sidebar contracts, repository file tree navigation contracts, scrollbar suppression / snapshot recovery contracts, dependency inspectors contracts (`InternalDepsList`, `ExternalDepsList`, `UnresolvedDepsList`), and Activity Bar 28px bottom icons / Tree-structured Graph & Globe & Multi-Cluster semantic icons / badge removal / crossable workspace contracts / sidebar header deduplication.
-- **Client production build:** Verified `vite build` cleanly emitting production assets into `client/dist/` in 2.40s.
+  - Workspace Placeholders: Maintained dark-themed preview/placeholder workspace for Ask Trailo, allowing full multi-workspace tab navigation.
+- **Constellation Cluster View Workspace (Phase 4D):** Implemented in `client/` and verified with automated test suite.
+  - Multi-Level Circular Constellation Engine (`client/src/utils/clusterLayout.js`): Pure deterministic layout engine organizing repository files into nested circular clusters and subclusters with single-child directory compression (`buildDirectoryTree`, `compressDirectoryTree`), calculating circular orbital boundaries (`border-radius: 50%`), placing star nodes along radial celestial orbits (concentric orbital rings with polar distribution), assigning relative coordinates with parent-before-child ordering (`parentId: cluster:...`, `extent: 'parent'`), and preserving directed constellation lines (dependency edges) with dual-interface array compatibility.
+  - Celestial Star Node (`client/src/components/StarNode.jsx`): Compact celestial star dot color-coded by language (Azure blue for TS, Amber gold for JS, Cosmic pink for CSS, Emerald green for JSON, Lavender for Markdown), with central handles for constellation lines, luminous starlight halo, and multi-state selection/neighbor glowing aura.
+  - Circular Cluster Group Boundary (`client/src/components/ClusterGroupNode.jsx`): React Flow node component rendering the circular orbital boundary with cosmic nebula gradient, concentric dashed orbital guideline, and compact apex badge showing directory path and star count.
+  - Interactive Constellation Canvas & Cursor Hover Popover (`client/src/components/ClusterCanvas.jsx`): Mounted when `activeWorkspace === 'cluster'`. Registers `starNode`, `fileNode`, and `clusterGroup` types, renders a floating glassmorphic cursor popover (`constellation-cursor-tooltip`) showing file name, path, line count, byte size, language badge, and cluster upon hover, and filters container clicks so only star nodes trigger file inspection.
+  - Cross-Workspace Selection & Source Viewer Synchronization: Shares selection state, highlight calculation, and collapsible `SourceViewer` across both Dependency Graph and Cluster View workspaces. Clicking any star node in the constellation immediately loads and highlights its source code without code duplication or extra API requests.
+  - Visual Styles (`client/src/App.css`): Dedicated styling for `.trailo-cluster-group`, `.is-root-cluster`, `.is-subcluster`, `.cluster-orbit-guide`, `.cluster-group-header`, `.constellation-star-node`, `.star-core`, `.star-glow-outer`, `.constellation-cursor-tooltip`, and `.cluster-canvas-container`.
+- **Automated test suite:** 226/226 tests passing cleanly across 66 suites with Node.js built-in runner (`node --test`), covering health endpoint, repository scanner, line chunker, JS/TS analyzer, path resolver, index store, end-to-end repository indexing, graph builder, graph routes, scan routes, secure file content routes, graph selection engine, source loader cache/race protection, browser fetch invocation receiver bindings, line splitting and newline preservation, Prism grammar resolution and tokenization, resizer panel width clamping, graph layout state synchronization, collapsible source explorer state transitions, application shell navigation transitions, Startup Screen / Scanner Sidebar contracts, repository file tree navigation contracts, scrollbar suppression / snapshot recovery contracts, dependency inspectors contracts (`InternalDepsList`, `ExternalDepsList`, `UnresolvedDepsList`), Activity Bar 28px bottom icons / semantic icons / crossable workspace contracts, and Phase 4D Constellation Cluster View circular layout / subclusters / star nodes / cursor hover popover contracts (`server/test/clusterView.test.js`).
+- **Client production build:** Verified `vite build` cleanly emitting production assets into `client/dist/` in 2.29s with 228 transformed modules.
 - **Git & Whitespace:** `git diff --check` reports 0 errors.
-
-
 
 ## Open Items & Next Intended Task
 
-- **Current Increment Status:** Activity Bar icon sizing, bottom workspace icons, and crossable workspaces completed, tested, and verified; awaiting developer review and acceptance.
+- **Current Increment Status:** Phase 4D Constellation Cluster View workspace implementation completed, tested, and verified; ready for review.
 - **Next Phase / Increment:** Phase 5 — Codebase Q&A Slice (Ollama model adapter, bounded evidence retrieval, and conversation UI).
 - **Execution rule:** Phase 5 and subsequent steps remain **not started**. Implementation will begin only upon explicit user authorization.
 

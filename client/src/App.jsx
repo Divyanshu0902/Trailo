@@ -6,10 +6,12 @@ import { ContextualSidebar } from './components/ContextualSidebar.jsx';
 import { WorkspaceTabBar } from './components/WorkspaceTabBar.jsx';
 import { AppStatusBar } from './components/AppStatusBar.jsx';
 import { GraphCanvas } from './components/GraphCanvas.jsx';
+import { ClusterCanvas } from './components/ClusterCanvas.jsx';
 import { SourceViewer } from './components/SourceViewer.jsx';
 import { StartupScreen } from './components/StartupScreen.jsx';
-import { ClusterIcon, AskTrailoIcon } from './components/Icons.jsx';
+import { AskTrailoIcon } from './components/Icons.jsx';
 import { computeGraphLayout } from './utils/layout.js';
+import { computeClusterLayout } from './utils/clusterLayout.js';
 import {
   computeSelectionHighlights,
   transitionSelectionState,
@@ -51,6 +53,8 @@ export default function App() {
 
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [clusterNodes, setClusterNodes, onClusterNodesChange] = useNodesState([]);
+  const [clusterEdges, setClusterEdges, onClusterEdgesChange] = useEdgesState([]);
 
   /**
    * Applies selection highlighting to existing React Flow nodes and edges.
@@ -131,10 +135,84 @@ export default function App() {
         };
       })
     );
-  }, [setNodes, setEdges]);
+    // Apply highlights to Cluster View nodes (child file nodes) and edges
+    setClusterNodes((prevNodes) =>
+      prevNodes.map((n) => {
+        if (n.type === 'clusterGroup') return n;
+        const hState = highlights.nodeHighlightMap.get(n.id) || 'normal';
+        return {
+          ...n,
+          data: {
+            ...n.data,
+            highlightState: hState,
+          },
+        };
+      })
+    );
+
+    setClusterEdges((prevEdges) =>
+      prevEdges.map((e) => {
+        const edgeState = highlights.edgeHighlightMap.get(e.id) || 'normal';
+
+        if (edgeState === 'outgoing') {
+          return {
+            ...e,
+            zIndex: 10,
+            style: { stroke: '#58a6ff', strokeWidth: 2.5 },
+            markerEnd: {
+              type: MarkerType.ArrowClosed,
+              width: 16,
+              height: 16,
+              color: '#58a6ff',
+            },
+          };
+        }
+
+        if (edgeState === 'incoming') {
+          return {
+            ...e,
+            zIndex: 10,
+            style: { stroke: '#3fb950', strokeWidth: 2.5 },
+            markerEnd: {
+              type: MarkerType.ArrowClosed,
+              width: 16,
+              height: 16,
+              color: '#3fb950',
+            },
+          };
+        }
+
+        if (edgeState === 'dimmed') {
+          return {
+            ...e,
+            zIndex: 0,
+            style: { stroke: '#30363d', strokeWidth: 1, opacity: 0.25 },
+            markerEnd: {
+              type: MarkerType.ArrowClosed,
+              width: 12,
+              height: 12,
+              color: '#30363d',
+            },
+          };
+        }
+
+        return {
+          ...e,
+          zIndex: 1,
+          style: { stroke: '#58a6ff', strokeWidth: 1.5, opacity: 1 },
+          markerEnd: {
+            type: MarkerType.ArrowClosed,
+            width: 14,
+            height: 14,
+            color: '#58a6ff',
+          },
+        };
+      })
+    );
+  }, [setNodes, setEdges, setClusterNodes, setClusterEdges]);
 
   /**
-   * Transforms graph payload and sets up nodes/edges using DAG layout.
+   * Transforms graph payload and sets up nodes/edges using DAG and Cluster layouts.
    */
   const loadGraphFromPayload = useCallback((payload) => {
     setGraphData(payload);
@@ -150,6 +228,8 @@ export default function App() {
     if (!payload || !payload.nodes || payload.nodes.length === 0) {
       setNodes([]);
       setEdges([]);
+      setClusterNodes([]);
+      setClusterEdges([]);
       setOpenWorkspaces([]);
       setActiveWorkspace(null);
       return;
@@ -157,7 +237,6 @@ export default function App() {
 
     setOpenWorkspaces((prev) => (prev.includes('graph') ? prev : [...prev, 'graph']));
     setActiveWorkspace('graph');
-
 
     const rawNodes = payload.nodes.map((node) => ({
       id: node.id,
@@ -197,7 +276,13 @@ export default function App() {
     const positionedNodes = Array.isArray(layout) ? layout : (layout?.nodes || []);
     setNodes(positionedNodes);
     setEdges(rawEdges);
-  }, [setNodes, setEdges]);
+
+    const clusterLayout = computeClusterLayout(rawNodes, rawEdges);
+    const positionedClusterNodes = Array.isArray(clusterLayout) ? clusterLayout : (clusterLayout?.nodes || []);
+    const positionedClusterEdges = Array.isArray(clusterLayout?.edges) ? clusterLayout.edges : rawEdges;
+    setClusterNodes(positionedClusterNodes);
+    setClusterEdges(positionedClusterEdges);
+  }, [setNodes, setEdges, setClusterNodes, setClusterEdges]);
 
   /**
    * Check if a repository is already active on initial mount.
@@ -642,17 +727,6 @@ export default function App() {
             <StartupScreen />
           ) : !activeWorkspace || openWorkspaces.length === 0 ? (
             <StartupScreen />
-          ) : activeWorkspace === 'cluster' ? (
-            <div className="workspace-placeholder" role="region" aria-label="Cluster View Workspace">
-              <div className="workspace-placeholder-content">
-                <div className="placeholder-icon-badge">
-                  <ClusterIcon size={32} />
-                </div>
-                <h2 className="placeholder-title">Cluster View</h2>
-                <p className="placeholder-desc">Groups related code into visual clusters.</p>
-                <div className="placeholder-status-pill">Phase 4D — Clustering &amp; Architecture Visualization</div>
-              </div>
-            </div>
           ) : activeWorkspace === 'ask' ? (
             <div className="workspace-placeholder" role="region" aria-label="Ask Trailo Workspace">
               <div className="workspace-placeholder-content">
@@ -670,18 +744,33 @@ export default function App() {
               className={`explore-workspace ${isDragging ? 'workspace-resizing' : ''}`}
             >
               <div className="workspace-center-canvas">
-                <GraphCanvas
-                  nodes={nodes}
-                  edges={edges}
-                  onNodesChange={onNodesChange}
-                  onEdgesChange={onEdgesChange}
-                  graphData={graphData}
-                  isScanning={isScanning}
-                  error={error}
-                  onDismissError={() => setError(null)}
-                  onNodeClick={handleSelectNode}
-                  onPaneClick={() => handleSelectNode(null)}
-                />
+                {activeWorkspace === 'cluster' ? (
+                  <ClusterCanvas
+                    nodes={clusterNodes}
+                    edges={clusterEdges}
+                    onNodesChange={onClusterNodesChange}
+                    onEdgesChange={onClusterEdgesChange}
+                    graphData={graphData}
+                    isScanning={isScanning}
+                    error={error}
+                    onDismissError={() => setError(null)}
+                    onNodeClick={handleSelectNode}
+                    onPaneClick={() => handleSelectNode(null)}
+                  />
+                ) : (
+                  <GraphCanvas
+                    nodes={nodes}
+                    edges={edges}
+                    onNodesChange={onNodesChange}
+                    onEdgesChange={onEdgesChange}
+                    graphData={graphData}
+                    isScanning={isScanning}
+                    error={error}
+                    onDismissError={() => setError(null)}
+                    onNodeClick={handleSelectNode}
+                    onPaneClick={() => handleSelectNode(null)}
+                  />
+                )}
               </div>
 
 

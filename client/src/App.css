@@ -2674,3 +2674,311 @@
   border-radius: 12px;
   margin-top: 0.5rem;
 }
+
+/* --------------------------------------------------------------------------
+   Cluster View & Architectural Group Containers
+/* --------------------------------------------------------------------------
+   Phase 4D — Constellation Cluster View & Circular Architectural Grouping
+   -------------------------------------------------------------------------- */
+.trailo-cluster-flow .react-flow__node-clusterGroup {
+  cursor: default;
+  z-index: 0 !important;
+}
+
+.trailo-cluster-flow .react-flow__node-starNode {
+  z-index: 5 !important;
+}
+
+/* Circular Celestial Cluster Boundary */
+.trailo-cluster-group {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  box-sizing: border-box;
+  position: relative;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  pointer-events: none;
+}
+
+.trailo-cluster-group.is-root-cluster {
+  background: radial-gradient(circle at center, rgba(56, 139, 253, 0.03) 0%, rgba(13, 17, 23, 0.55) 70%, rgba(56, 139, 253, 0.09) 100%);
+  border: 1.5px dashed rgba(88, 166, 255, 0.3);
+  box-shadow: 0 0 35px rgba(56, 139, 253, 0.05), inset 0 0 25px rgba(56, 139, 253, 0.03);
+}
+
+.trailo-cluster-group.is-subcluster {
+  background: radial-gradient(circle at center, rgba(188, 140, 255, 0.03) 0%, rgba(13, 17, 23, 0.45) 75%, rgba(188, 140, 255, 0.07) 100%);
+  border: 1.25px dashed rgba(188, 140, 255, 0.35);
+  box-shadow: 0 0 25px rgba(188, 140, 255, 0.04), inset 0 0 15px rgba(188, 140, 255, 0.02);
+}
+
+.trailo-cluster-group:hover {
+  border-color: rgba(88, 166, 255, 0.55);
+}
+
+.cluster-orbit-guide {
+  position: absolute;
+  top: 25%;
+  left: 25%;
+  width: 50%;
+  height: 50%;
+  border-radius: 50%;
+  border: 1px dashed rgba(88, 166, 255, 0.08);
+  pointer-events: none;
+}
+
+/* Orbit Apex Header Badge */
+.cluster-group-header {
+  position: absolute;
+  top: -13px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.2rem 0.75rem;
+  background-color: rgba(13, 17, 23, 0.9);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(88, 166, 255, 0.32);
+  border-radius: 20px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5), 0 0 10px rgba(88, 166, 255, 0.15);
+  user-select: none;
+  pointer-events: auto;
+  white-space: nowrap;
+  z-index: 2;
+}
+
+.cluster-group-icon {
+  color: var(--accent-color);
+  flex-shrink: 0;
+}
+
+.cluster-group-title {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+
+.cluster-group-badge {
+  font-size: 0.66rem;
+  font-weight: 600;
+  padding: 0.08rem 0.45rem;
+  border-radius: 10px;
+  background-color: rgba(48, 54, 61, 0.65);
+  color: var(--text-secondary);
+  border: 1px solid rgba(88, 166, 255, 0.2);
+  white-space: nowrap;
+}
+
+/* Constellation Star Node */
+.constellation-star-node {
+  position: relative;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, opacity 0.2s ease;
+}
+
+.constellation-handle {
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  width: 1px !important;
+  height: 1px !important;
+  border: none !important;
+}
+
+.star-core {
+  position: relative;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--star-color, #58a6ff);
+  box-shadow: 0 0 7px var(--star-color, #58a6ff);
+  transition: all 0.2s ease;
+  z-index: 2;
+}
+
+.star-glow-inner {
+  position: absolute;
+  inset: 2px;
+  border-radius: 50%;
+  background-color: var(--star-color, #58a6ff);
+  opacity: 0.35;
+  filter: blur(1.5px);
+  z-index: 1;
+}
+
+.star-glow-outer {
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  background-color: var(--star-color, #58a6ff);
+  opacity: 0.18;
+  filter: blur(4px);
+  transition: all 0.25s ease;
+  z-index: 0;
+}
+
+.constellation-star-node:hover {
+  transform: scale(1.45);
+}
+
+.constellation-star-node:hover .star-glow-outer {
+  opacity: 0.65;
+  inset: -6px;
+  filter: blur(6px);
+}
+
+.constellation-star-node:hover .star-core {
+  background-color: #ffffff;
+  box-shadow: 0 0 10px var(--star-color, #58a6ff);
+}
+
+/* Selected Star Node */
+.constellation-star-node.is-selected {
+  transform: scale(1.55);
+}
+
+.constellation-star-node.is-selected .star-core {
+  background-color: #ffffff;
+  box-shadow: 0 0 12px #ffffff;
+}
+
+.constellation-star-node.is-selected .star-glow-outer {
+  opacity: 0.85;
+  inset: -8px;
+  background-color: #58a6ff;
+  filter: blur(6px);
+}
+
+/* Highlight States */
+.constellation-star-node.state-incoming .star-core {
+  background-color: #39d353;
+  box-shadow: 0 0 10px #39d353;
+}
+
+.constellation-star-node.state-outgoing .star-core {
+  background-color: #79c0ff;
+  box-shadow: 0 0 10px #79c0ff;
+}
+
+.constellation-star-node.state-dimmed {
+  opacity: 0.2;
+  transform: scale(0.85);
+}
+
+/* Floating Star Hover Popover */
+.constellation-cursor-tooltip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  pointer-events: none;
+  background: rgba(13, 17, 23, 0.94);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(88, 166, 255, 0.35);
+  border-radius: 8px;
+  padding: 0.65rem 0.85rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 15px rgba(88, 166, 255, 0.2);
+  max-width: 320px;
+  min-width: 200px;
+  animation: constellationFadeIn 0.12s ease-out;
+}
+
+@keyframes constellationFadeIn {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 4px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.star-tooltip-header {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 0.3rem;
+}
+
+.star-tooltip-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  box-shadow: 0 0 6px currentColor;
+  flex-shrink: 0;
+}
+
+.star-tooltip-name {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.star-tooltip-lang-badge {
+  font-size: 0.62rem;
+  font-weight: 600;
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  background: rgba(88, 166, 255, 0.15);
+  color: #58a6ff;
+  border: 1px solid rgba(88, 166, 255, 0.3);
+  margin-left: auto;
+}
+
+.star-tooltip-path {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.45rem;
+  word-break: break-all;
+}
+
+.star-tooltip-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.star-tooltip-meta-sep {
+  color: var(--border-color);
+}
+
+.star-tooltip-cluster {
+  color: #a371f7;
+  font-weight: 500;
+}
+
+.star-tooltip-hint {
+  margin-top: 0.5rem;
+  padding-top: 0.35rem;
+  border-top: 1px solid rgba(48, 54, 61, 0.6);
+  font-size: 0.65rem;
+  color: #7d8590;
+  font-style: italic;
+}
+
+.cluster-canvas-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
